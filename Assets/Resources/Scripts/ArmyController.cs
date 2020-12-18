@@ -14,12 +14,7 @@ public class ArmyController : MonoBehaviour
     public Dictionary<UnitInfo, int> amryInfo;
 
     private List<UnitInfo> unitInfoList;
-
-    public void MoveZone()
-    {
-
-    }
-
+    
     private void Start()
     {
         amryInfo = new Dictionary<UnitInfo, int>();

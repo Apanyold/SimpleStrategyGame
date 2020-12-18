@@ -258,6 +258,7 @@ public class GameController : MonoBehaviour
         grid.SetValue(x, y, 
             Instantiate(goPlayerCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform));
 
+
         listSpawnpoints.RemoveAt(0);
 
         for (int i = 0; i< botsCount; i++)
@@ -273,6 +274,24 @@ public class GameController : MonoBehaviour
         //gameObject.GetComponent<ArmyController>().amrySpeed = 2;
         gameObject.GetComponent<SpriteRenderer>().color = Color.green;
         grid.SetValue(6, 6, gameObject);
+    }
+
+    //сделать проверку на это во время конца действия атаки или движения
+    private void CheckGameOver()
+    {
+        Castle[] castlesList = FindObjectsOfType<Castle>();
+        foreach (Castle castle in castlesList)
+        {
+            if(FindObjectOfType<PlayerController>().gameObject != null && castlesList.Length == 1)
+            {
+                Debug.Log("Hurray you win");
+            }
+            else if (castlesList.Length >= 1 && FindObjectOfType<PlayerController>().gameObject == null)
+            {
+                Debug.Log("Oh no you lose");
+            }
+
+        }
     }
 }
 
