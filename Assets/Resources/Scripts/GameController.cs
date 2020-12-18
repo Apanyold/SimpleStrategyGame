@@ -15,6 +15,9 @@ public class GameController : MonoBehaviour
     public List<BuildingInfo> buildingsInfo;
 
     [SerializeField]
+    public List<UnitInfo> unitsInfo;
+
+    [SerializeField]
     public int startCoins, startPeoples;
 
     private int
@@ -115,21 +118,18 @@ public class GameController : MonoBehaviour
                 }
             }
         }
-        if (isArmySelected)
-        {
-            HideArmyMoveZone();
-        }
 
-        if (point != null && point.GetComponent<ArmyController>() != null && point.GetComponent<ArmyController>().owner == FindObjectOfType<PlayerController>().gameObject)
+        if (point != null && point.GetComponent<ArmyController>() != null && point.GetComponent<ArmyController>().owner == FindObjectOfType<PlayerController>().gameObject && !isArmySelected)
         {
-            if (!isArmySelected)
-            {
-                selectedArmy = point;
-                moveList = ArmyMoveZone(point);
-                ShowArmyMoveZone();
-            }
+            selectedArmy = point;
+            moveList = ArmyMoveZone(point);
+            ShowArmyMoveZone();
             Debug.Log("You just click at your army");
             isArmySelected = true;
+        }
+        else if (isArmySelected)
+        {
+            HideArmyMoveZone();
         }
         //Debug.Log(grid.GetValue(ExtensionClass.GetMouseWorldPosition()));
     }
@@ -260,8 +260,6 @@ public class GameController : MonoBehaviour
 
         listSpawnpoints.RemoveAt(0);
 
-        Debug.Log(grid.GetValue(FindObjectOfType<PlayerController>().transform.position));
-
         for (int i = 0; i< botsCount; i++)
         {
             grid.GetXY(listSpawnpoints[0], out int x2, out int y2);
@@ -272,7 +270,7 @@ public class GameController : MonoBehaviour
 
         GameObject gameObject = Instantiate(goArmyPrefab, new Vector3(6, 6, 0), new Quaternion(0, 0, 0, 0), goMapHolder.transform);
         gameObject.GetComponent<ArmyController>().owner = FindObjectOfType<PlayerController>().gameObject;
-        gameObject.GetComponent<ArmyController>().amrySpeed = 2;
+        //gameObject.GetComponent<ArmyController>().amrySpeed = 2;
         gameObject.GetComponent<SpriteRenderer>().color = Color.green;
         grid.SetValue(6, 6, gameObject);
     }

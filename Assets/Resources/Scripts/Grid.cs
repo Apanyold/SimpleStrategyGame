@@ -79,7 +79,8 @@ public class Grid: MonoBehaviour
 
     public void RemoveValue(int x, int y)
     {
-        Destroy(GetValue(x, y).gameObject);
+        if(GetValue(x, y).gameObject != null)
+            Destroy(GetValue(x, y).gameObject);
         SetValue(x, y, null);
     }
 

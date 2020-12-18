@@ -13,16 +13,15 @@ public class BuildingInfo : ScriptableObject
 }
 
 [CreateAssetMenu(fileName = "New Unit", menuName = "ScriptableObjects/Unit")]
-public class UnityInfo : ScriptableObject
+public class UnitInfo : ScriptableObject
 {
-    public int cost;
-    public int maxLevel;
+    public int coinsCost;
+    public int peopleCost;
     public string unityName;
     public Sprite image;
 
     public int attack;
     public int initiative;
-    public int health;
     public int defence;
     public int speed;
     public int trainingTime;
