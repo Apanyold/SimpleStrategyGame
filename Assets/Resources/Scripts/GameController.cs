@@ -55,7 +55,9 @@ public class GameController : MonoBehaviour
         grid,
         gridMoveZone;
 
-    private GameObject selectedArmy = null;
+    private GameObject 
+        selectedArmy = null,
+        goPlayer;
 
     private GraphicRaycaster m_Raycaster;
     private EventSystem m_EventSystem;
@@ -101,30 +103,26 @@ public class GameController : MonoBehaviour
         GameObject 
             point = grid.GetValue(ExtensionClass.GetMouseWorldPosition()),
             pointMove = gridMoveZone.GetValue(ExtensionClass.GetMouseWorldPosition());
-        
-        if (pointMove != null && pointMove.GetComponent<MoveCell>() != null && isArmySelected)
-        {
-            Debug.Log("MoveAction");
-            if(selectedArmy != null && (point == null || point.GetComponent<Castle>() != null))
-            {
-                if(point != null && point.GetComponent<ArmyController>() != null)
-                {
-                    Debug.Log("Attack");
-                }
-                else
-                {
-                    grid.MoveTo(pointMove.transform.position, selectedArmy);
+        ArmyController armyController = null;
 
-                }
-            }
+        if (point!= null && point.GetComponent<ArmyController>() != null)
+        {
+            armyController = point.GetComponent<ArmyController>();
+
+            Debug.Log("Army");
         }
 
-        if (point != null && point.GetComponent<ArmyController>() != null && point.GetComponent<ArmyController>().owner == FindObjectOfType<PlayerController>().gameObject && !isArmySelected)
+        if (pointMove != null && pointMove.GetComponent<MoveCell>() != null && isArmySelected)
         {
+            selectedArmy.GetComponent<ArmyController>().MoveArmyTo(pointMove.transform.position);
+        }
+
+        if (point != null && armyController != null && armyController.owner == goPlayer && !isArmySelected && !armyController.isMovedThisTurn)
+        {
+            Debug.Log("Army Selected");
             selectedArmy = point;
             moveList = ArmyMoveZone(point);
             ShowArmyMoveZone();
-            Debug.Log("You just click at your army");
             isArmySelected = true;
         }
         else if (isArmySelected)
@@ -146,8 +144,6 @@ public class GameController : MonoBehaviour
         int x = (int)army.transform.position.x,
             y = (int)army.transform.position.y,
             speed = army.GetComponent<ArmyController>().amrySpeed;
-
-        Debug.Log("Selected Army speed: " + speed);
         
         for(int jx = x - speed; jx <= x + speed; jx++)
         {
@@ -274,6 +270,8 @@ public class GameController : MonoBehaviour
         //gameObject.GetComponent<ArmyController>().amrySpeed = 2;
         gameObject.GetComponent<SpriteRenderer>().color = Color.green;
         grid.SetValue(6, 6, gameObject);
+
+        goPlayer = FindObjectOfType<PlayerController>().gameObject;
     }
 
     //сделать проверку на это во время конца действия атаки или движения
@@ -282,11 +280,11 @@ public class GameController : MonoBehaviour
         Castle[] castlesList = FindObjectsOfType<Castle>();
         foreach (Castle castle in castlesList)
         {
-            if(FindObjectOfType<PlayerController>().gameObject != null && castlesList.Length == 1)
+            if(goPlayer != null && castlesList.Length == 1)
             {
                 Debug.Log("Hurray you win");
             }
-            else if (castlesList.Length >= 1 && FindObjectOfType<PlayerController>().gameObject == null)
+            else if (castlesList.Length >= 1 && goPlayer == null)
             {
                 Debug.Log("Oh no you lose");
             }

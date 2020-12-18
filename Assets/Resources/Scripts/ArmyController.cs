@@ -14,6 +14,10 @@ public class ArmyController : MonoBehaviour
     public Dictionary<UnitInfo, int> amryInfo;
 
     private List<UnitInfo> unitInfoList;
+
+    private Grid mainGrid;
+
+    public bool isMovedThisTurn;
     
     private void Start()
     {
@@ -23,6 +27,10 @@ public class ArmyController : MonoBehaviour
         amryInfo.Add(unitInfoList[0], 2);
 
         UpdateArmyInfo(unitInfoList[0], 2);
+
+        mainGrid = GameController.Insnatce.grid;
+
+        isMovedThisTurn = false;
     }
 
     public void UpdateArmyInfo(UnitInfo key, int value)
@@ -50,5 +58,54 @@ public class ArmyController : MonoBehaviour
                 min = unit.speed;
         }
         amrySpeed = min;
+    }
+
+    public void OnTurnEnd()
+    {
+        isMovedThisTurn = false;
+    }
+
+    public void MoveArmyTo(Vector3 position)
+    {
+        if (isMovedThisTurn)
+        {
+            UiController.Instance.ShowNotification("Your army has already moved on this turn");
+            return;
+        }
+
+        GameObject pointObject = mainGrid.GetValue(position);
+
+        if(pointObject == null)
+        {
+            Debug.Log("Move to empty point");
+        }
+        else if ((pointObject.GetComponent<ArmyController>() != null && pointObject.GetComponent<ArmyController>().owner != null))
+        {
+            if (pointObject.GetComponent<ArmyController>().owner == owner)
+            {
+                Debug.Log("Move to own Army");
+            }
+            else if (pointObject.GetComponent<ArmyController>().owner != owner)
+            {
+                Debug.Log("Move to enemy Army");
+            }
+        }
+
+        isMovedThisTurn = true;
+
+        mainGrid.MoveTo(position, gameObject);
+    }
+
+    public void StartFight(GameObject attackSubject)
+    {
+        while(attackSubject != null && amryInfo.Count > 0)
+        {
+
+        }
+    }
+
+    public void ArmyDie()
+    {
+        Destroy(gameObject);
     }
 }
