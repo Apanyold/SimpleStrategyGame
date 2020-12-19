@@ -5,46 +5,73 @@ using UnityEngine;
 public class ArmyController : MonoBehaviour
 {
     [HideInInspector]
-    public GameObject owner;
+    public int ownerId;
 
     [HideInInspector]
     public int amrySpeed;
 
     [HideInInspector]
-    public Dictionary<UnitInfo, int> amryInfo;
+    public List<ArmyData> armyInfo;
 
     private List<UnitInfo> unitInfoList;
 
     private Grid mainGrid;
 
-    public bool isMovedThisTurn;
-    
+    public bool 
+        isMovedThisTurn,
+        ifOnCastle;
+
+    [HideInInspector]
+    public int
+        armyDefBonus,
+        armyAttackBonus;
+
+
+    //testing field;
+    List<ArmyData> enemyArmyInfoTest;
     private void Start()
     {
-        amryInfo = new Dictionary<UnitInfo, int>();
+        armyInfo = new List<ArmyData>();
+        enemyArmyInfoTest = new List<ArmyData>();
         unitInfoList = GameController.Insnatce.unitsInfo;
+        if (GetComponent<Castle>() != null)
+        {
+            UpdateCatleArmyInfo();
+            ifOnCastle = true;
+            isMovedThisTurn = true;
+        }
 
-        amryInfo.Add(unitInfoList[0], 2);
+        //testing field;
+        UpdateArmyInfo(new ArmyData(unitInfoList[0], 1, 1));
+        UpdateArmyInfo(new ArmyData(unitInfoList[1], 2, 1));
+        UpdateArmyInfo(new ArmyData(unitInfoList[2], 3, 1));
+        UpdateArmyInfo(new ArmyData(unitInfoList[3], 1, 1));
 
-        UpdateArmyInfo(unitInfoList[0], 2);
+        enemyArmyInfoTest.Add(new ArmyData(unitInfoList[0], 1, 2));
+        enemyArmyInfoTest.Add(new ArmyData(unitInfoList[1], 1, 2));
+        enemyArmyInfoTest.Add(new ArmyData(unitInfoList[2], 1, 2));
+
+
+        GameController.Insnatce.fightController.InitiateFight(armyInfo, enemyArmyInfoTest);
+
+        //CreateAttackOrder(enemyArmyInfoTest);
 
         mainGrid = GameController.Insnatce.grid;
 
-        isMovedThisTurn = false;
+        if(!ifOnCastle)
+            isMovedThisTurn = false;
     }
 
-    public void UpdateArmyInfo(UnitInfo key, int value)
+    public void UpdateArmyInfo(ArmyData armyData)
     {
-        if (!amryInfo.TryGetValue(key, out int x))
+        if (armyInfo.Exists(x => x.unitInfo.name == armyData.unitInfo.name))
         {
-            amryInfo.Add(key, value);
+            armyInfo.Find(x => x.unitInfo.name == armyData.unitInfo.name).count += armyData.count;
         }
         else
-        {
-            amryInfo[key] = x + value;
-        }
+            armyInfo.Add(armyData);
 
-        Debug.Log("Unit: " + key.name + " Count: " + amryInfo[key]);
+        armyInfo.ForEach(x => Debug.Log("Unity name: " + x.unitInfo.name + " count: " + x.count));
 
         CalculateArmySpeed();
     }
@@ -52,17 +79,24 @@ public class ArmyController : MonoBehaviour
     public void CalculateArmySpeed()
     {
         int min = 100;
-        foreach(UnitInfo unit in amryInfo.Keys)
-        {
-            if (unit.speed < min)
-                min = unit.speed;
-        }
+        armyInfo.ForEach(x => {
+            if (x.unitInfo.speed < min)
+                min = x.unitInfo.speed;
+        });
         amrySpeed = min;
     }
 
     public void OnTurnEnd()
     {
-        isMovedThisTurn = false;
+        if (!ifOnCastle)
+            isMovedThisTurn = false;
+    }
+
+    public void UpdateCatleArmyInfo()
+    {
+        armyInfo.ForEach(x => x.isOnCatle = true);
+        armyInfo.ForEach(x => x.castleBonusAttack = armyAttackBonus);
+        armyInfo.ForEach(x => x.castleBonusDefence = armyDefBonus);
     }
 
     public void MoveArmyTo(Vector3 position)
@@ -79,13 +113,13 @@ public class ArmyController : MonoBehaviour
         {
             Debug.Log("Move to empty point");
         }
-        else if ((pointObject.GetComponent<ArmyController>() != null && pointObject.GetComponent<ArmyController>().owner != null))
+        else if ((pointObject.GetComponent<ArmyController>() != null && pointObject.GetComponent<ArmyController>().ownerId != 0))
         {
-            if (pointObject.GetComponent<ArmyController>().owner == owner)
+            if (pointObject.GetComponent<ArmyController>().ownerId == ownerId)
             {
                 Debug.Log("Move to own Army");
             }
-            else if (pointObject.GetComponent<ArmyController>().owner != owner)
+            else if (pointObject.GetComponent<ArmyController>().ownerId != ownerId)
             {
                 Debug.Log("Move to enemy Army");
             }
@@ -98,11 +132,42 @@ public class ArmyController : MonoBehaviour
 
     public void StartFight(GameObject attackSubject)
     {
-        while(attackSubject != null && amryInfo.Count > 0)
+        ArmyController enemyArmy;
+        if (attackSubject != null && attackSubject.GetComponent<ArmyController>() != null)
+            enemyArmy = attackSubject.GetComponent<ArmyController>();
+        else
+        {
+            Debug.LogError("attackSubject is null or attackSubject.ArmyController is null");
+            return;
+        }
+
+        if (armyInfo.Count > 0 && enemyArmy.armyInfo.Count > 0)
         {
 
         }
     }
+
+    //private void CreateAttackOrder(List<ArmyData> enemyArmyInfo)
+    //{
+    //    List<ArmyData> 
+    //        temp = new List<ArmyData>(),
+    //        orderList = new List<ArmyData>();
+    //    int max = 0;
+
+    //    armyInfo.ForEach(x => {
+    //        if (x.unitInfo.speed > max)
+    //            max = x.unitInfo.speed;
+    //    });
+
+    //    temp = armyInfo.FindAll(x => x.unitInfo.speed == max);
+        
+    //    orderList.Add(temp[Random.Range(0, temp.Count + 1)]);
+
+    //    for (int i = 0; i < enemyArmyInfo.Count + armyInfo.Count; i++)
+    //    {
+
+    //    }
+    //}
 
     public void ArmyDie()
     {

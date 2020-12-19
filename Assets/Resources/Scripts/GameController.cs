@@ -62,6 +62,8 @@ public class GameController : MonoBehaviour
     private GraphicRaycaster m_Raycaster;
     private EventSystem m_EventSystem;
     PointerEventData m_PointerEventData;
+
+    public FightController fightController;
     #endregion
     private void Awake()
     {
@@ -73,6 +75,7 @@ public class GameController : MonoBehaviour
 
         m_Raycaster = FindObjectOfType<GraphicRaycaster>();
         m_EventSystem = FindObjectOfType<EventSystem>();
+        fightController = new FightController();
         moveList = new List<(int x, int y)>();
     }
 
@@ -117,7 +120,7 @@ public class GameController : MonoBehaviour
             selectedArmy.GetComponent<ArmyController>().MoveArmyTo(pointMove.transform.position);
         }
 
-        if (point != null && armyController != null && armyController.owner == goPlayer && !isArmySelected && !armyController.isMovedThisTurn)
+        if (point != null && armyController != null && armyController.ownerId == goPlayer.GetComponent<PlayerController>().Id && !isArmySelected && !armyController.isMovedThisTurn)
         {
             Debug.Log("Army Selected");
             selectedArmy = point;
@@ -266,7 +269,7 @@ public class GameController : MonoBehaviour
         }
 
         GameObject gameObject = Instantiate(goArmyPrefab, new Vector3(6, 6, 0), new Quaternion(0, 0, 0, 0), goMapHolder.transform);
-        gameObject.GetComponent<ArmyController>().owner = FindObjectOfType<PlayerController>().gameObject;
+        gameObject.GetComponent<ArmyController>().ownerId = FindObjectOfType<PlayerController>().Id;
         //gameObject.GetComponent<ArmyController>().amrySpeed = 2;
         gameObject.GetComponent<SpriteRenderer>().color = Color.green;
         grid.SetValue(6, 6, gameObject);

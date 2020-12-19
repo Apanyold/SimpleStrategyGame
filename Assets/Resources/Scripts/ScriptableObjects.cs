@@ -25,4 +25,6 @@ public class UnitInfo : ScriptableObject
     public int defence;
     public int speed;
     public int trainingTime;
+
+    public bool isReciveConterAttack;
 }

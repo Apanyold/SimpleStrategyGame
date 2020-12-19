@@ -6,9 +6,11 @@ public class PlayerController : MonoBehaviour
 {
     public Castle playerCastle;
 
+    public int Id;
+
     void Start()
     {
         playerCastle = GetComponent<Castle>();
-        playerCastle.owner = gameObject;
+        playerCastle.ownerId = Id;
     }
 }

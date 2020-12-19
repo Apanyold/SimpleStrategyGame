@@ -11,7 +11,7 @@ public class Castle : MonoBehaviour
         poeplesPerTurn;
 
     [HideInInspector]
-    public GameObject owner;
+    public int ownerId;
 
     [HideInInspector]
     public (int xcord, int ycord) location;
@@ -20,5 +20,17 @@ public class Castle : MonoBehaviour
     {
         coinsCurrent = GameController.Insnatce.startCoins;
         peoplesCurrent = GameController.Insnatce.startPeoples;
+    }
+
+    private void OnDestroy()
+    {
+        if(gameObject.GetComponent<PlayerController>() != null)
+        {
+            Debug.Log("Game over. Catle message");
+        }
+        else
+        {
+            Debug.Log("Player gets 50% of destroyed castle gold");
+        }
     }
 }
