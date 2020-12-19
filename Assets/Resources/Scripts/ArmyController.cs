@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ArmyController : MonoBehaviour
@@ -29,10 +30,24 @@ public class ArmyController : MonoBehaviour
 
     //testing field;
     List<ArmyData> enemyArmyInfoTest;
-    private void Start()
+    private void Awake()
     {
         armyInfo = new List<ArmyData>();
+    }
+    private void Start()
+    {
+
         unitInfoList = GameController.Insnatce.unitsInfo;
+
+        //testing field;
+        Debug.Log("ArmyController start with owner ID: " + ownerId);
+        if (ownerId != 1)
+        {
+            UpdateArmyInfo(unitInfoList[0], 1);
+            UpdateArmyInfo(unitInfoList[1], 1);
+            UpdateArmyInfo(unitInfoList[2], 1);
+        }
+        //
         if (TryGetComponent(out Castle C))
         {
             UpdateCatleArmyInfo();
@@ -41,12 +56,7 @@ public class ArmyController : MonoBehaviour
             ownerId = C.ownerId;
         }
 
-        //testing field;
-        UpdateArmyInfo(new ArmyData(unitInfoList[0], 1, 1));
-        UpdateArmyInfo(new ArmyData(unitInfoList[1], 2, 1));
-        UpdateArmyInfo(new ArmyData(unitInfoList[2], 3, 1));
-        UpdateArmyInfo(new ArmyData(unitInfoList[3], 1, 1));
-        
+
         //GameController.Insnatce.fightController.InitiateFight(armyInfo, enemyArmyInfoTest);
 
         //CreateAttackOrder(enemyArmyInfoTest);
@@ -57,28 +67,42 @@ public class ArmyController : MonoBehaviour
             isMovedThisTurn = false;
     }
 
-    public void UpdateArmyInfo(ArmyData armyData)
+    public void UpdateArmyInfo(UnitInfo unitInfo, int count)
     {
-        if (armyInfo.Exists(x => x.unitInfo.name == armyData.unitInfo.name))
+        Debug.Log("Unity name: " + unitInfo.name + armyInfo.Count);
+        if (armyInfo.Count != 0 && armyInfo.Exists(x => x.unitInfo.name == unitInfo.name))
         {
-            armyInfo.Find(x => x.unitInfo.name == armyData.unitInfo.name).count += armyData.count;
+            armyInfo.Find(x => x.unitInfo.name == unitInfo.name).count += count;
         }
         else
-            armyInfo.Add(armyData);
+            armyInfo.Add(new ArmyData(unitInfo, count, ownerId));
 
-        armyInfo.ForEach(x => Debug.Log("Unity name: " + x.unitInfo.name + " count: " + x.count));
+        //armyInfo.ForEach(x => Debug.Log("Unity name: " + x.unitInfo.name + " count: " + x.count));
 
         CalculateArmySpeed();
     }
 
+    public void NewArmyInfo(List<ArmyData> armyDatas)
+    {
+        armyInfo = new List<ArmyData>();
+
+        foreach(ArmyData amry in armyDatas)
+        {
+            UpdateArmyInfo(amry.unitInfo, amry.count);
+        }
+
+    }
+
     public void CalculateArmySpeed()
     {
-        int min = 100;
-        armyInfo.ForEach(x => {
-            if (x.unitInfo.speed < min)
-                min = x.unitInfo.speed;
-        });
-        amrySpeed = min;
+        if(armyInfo.Count > 0)
+            amrySpeed = armyInfo.Min(x => x.unitInfo.speed);
+        else
+        {
+            amrySpeed = 0;
+            Debug.Log("Army speed is 0, is something wrong?");
+        }
+
     }
 
     public void OnTurnEnd()

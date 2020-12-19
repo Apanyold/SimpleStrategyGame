@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        Id = 1;
         playerCastle = GetComponent<Castle>();
         playerCastle.ownerId = Id;
     }

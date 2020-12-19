@@ -124,7 +124,7 @@ public class GameController : MonoBehaviour
         {
             Debug.Log("Army Selected");
             selectedArmy = point;
-            moveList = ArmyMoveZone(point);
+            moveList = ArmyMoveZone(selectedArmy);
             ShowArmyMoveZone();
             isArmySelected = true;
         }
@@ -147,7 +147,7 @@ public class GameController : MonoBehaviour
         int x = (int)army.transform.position.x,
             y = (int)army.transform.position.y,
             speed = army.GetComponent<ArmyController>().amrySpeed;
-        
+        Debug.Log("Army speed: " + speed);
         for(int jx = x - speed; jx <= x + speed; jx++)
         {
             if (jx < 0)
@@ -268,22 +268,24 @@ public class GameController : MonoBehaviour
             listSpawnpoints.RemoveAt(0);
         }
         // TESTING
-        GameObject gameObject = Instantiate(goArmyPrefab, new Vector3(6, 6, 0), new Quaternion(0, 0, 0, 0), goMapHolder.transform);
-        gameObject.GetComponent<ArmyController>().ownerId = FindObjectOfType<PlayerController>().Id;
-        //gameObject.GetComponent<ArmyController>().amrySpeed = 2;
-        gameObject.GetComponent<SpriteRenderer>().color = Color.green;
-        grid.SetValue(6, 6, gameObject);
+        GameObject gameObject = grid.SetValue(6,6,Instantiate(goArmyPrefab, new Vector3(6, 6, 0), new Quaternion(0, 0, 0, 0), goMapHolder.transform));
+        if(gameObject.TryGetComponent(out ArmyController A))
+        {
+            A.ownerId = 1;
+            gameObject.GetComponent<SpriteRenderer>().color = Color.green;
+            grid.SetValue(6, 6, gameObject);
+
+            A.UpdateArmyInfo(unitsInfo[0], 1);
+            A.UpdateArmyInfo(unitsInfo[1], 2);
+            A.UpdateArmyInfo(unitsInfo[2], 3);
+            A.UpdateArmyInfo(unitsInfo[3], 1);
+        }
+
 
         goPlayer = FindObjectOfType<PlayerController>().gameObject;
-
-        List<ArmyData>  enemyArmyInfoTest = new List<ArmyData>();
-        enemyArmyInfoTest.Add(new ArmyData(unitsInfo[0], 1, 2));
-        enemyArmyInfoTest.Add(new ArmyData(unitsInfo[1], 1, 2));
-        enemyArmyInfoTest.Add(new ArmyData(unitsInfo[2], 1, 2));
-
-        GameObject gameObjectEnemy = Instantiate(goArmyPrefab, new Vector3(6, 6, 0), new Quaternion(0, 0, 0, 0), goMapHolder.transform);
+        
+        GameObject gameObjectEnemy = grid.SetValue(6, 7, Instantiate(goArmyPrefab, new Vector3(6, 7, 0), new Quaternion(0, 0, 0, 0), goMapHolder.transform));
         gameObjectEnemy.GetComponent<ArmyController>().ownerId = 2;
-        //gameObjectEnemy.GetComponent<ArmyController>() = enemyArmyInfoTest;
 
     }
 
