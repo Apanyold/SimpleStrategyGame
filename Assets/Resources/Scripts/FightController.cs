@@ -108,7 +108,7 @@ public class FightController
 
         foreach(ArmyData attacker in attackOrderList.ToArray())
         {
-            if (attacker.count == 0)
+            if (attacker.count <= 0)
                 continue;
 
             temp = attackOrderList.FindAll(defender => defender.ownerId != attacker.ownerId);
@@ -145,20 +145,20 @@ public class FightController
         if (attackOrderList.FindAll(x => x.ownerId == atckArmyController.ownerId).Count == 0)
         {
             Debug.Log("DEFENDERS WIN");
-            atckArmyController.Die();
+            //atckArmyController.Die();
             defArmyCOntroller.UpdateArmyInfo(attackOrderList);
         }
         else if (attackOrderList.FindAll(x => x.ownerId == defArmyCOntroller.ownerId).Count == 0)
         {
             Debug.Log("ATTACKERS WIN");
-            defArmyCOntroller.Die();
+            //defArmyCOntroller.Die();
             atckArmyController.UpdateArmyInfo(attackOrderList);
         }
         else if(attackOrderList.Count == 0)
         {
             Debug.Log("DRAW");
-            atckArmyController.Die();
-            defArmyCOntroller.Die();
+            //atckArmyController.Die();
+            //defArmyCOntroller.Die();
         }
         else
             StartFight();

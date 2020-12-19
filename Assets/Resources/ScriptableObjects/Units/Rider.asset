@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: Raider
+  m_Name: Rider
   m_EditorClassIdentifier: Assembly-CSharp::UnitInfo
-  coinsCost: 0
-  peopleCost: 0
-  unityName: 
+  coinsCost: 48
+  peopleCost: 1
+  unityName: Rider
   image: {fileID: 0}
-  attack: 0
-  initiative: 0
-  defence: 0
-  speed: 0
-  trainingTime: 0
-  isReciveConterAttack: 0
+  attack: 20
+  initiative: 3
+  defence: 7
+  speed: 3
+  trainingTime: 4
+  isReciveConterAttack: 1

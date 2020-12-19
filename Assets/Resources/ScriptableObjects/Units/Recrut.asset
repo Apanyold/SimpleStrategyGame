@@ -21,3 +21,4 @@ MonoBehaviour:
   defence: 2
   speed: 1
   trainingTime: 1
+  isReciveConterAttack: 1

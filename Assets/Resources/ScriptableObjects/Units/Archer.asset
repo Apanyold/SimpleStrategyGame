@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: Archer
   m_EditorClassIdentifier: Assembly-CSharp::UnitInfo
-  coinsCost: 0
-  peopleCost: 0
-  unityName: 
+  coinsCost: 8
+  peopleCost: 1
+  unityName: Archer
   image: {fileID: 0}
-  attack: 0
-  initiative: 0
-  defence: 0
-  speed: 0
-  trainingTime: 0
+  attack: 4
+  initiative: 3
+  defence: 3
+  speed: 3
+  trainingTime: 3
+  isReciveConterAttack: 0
