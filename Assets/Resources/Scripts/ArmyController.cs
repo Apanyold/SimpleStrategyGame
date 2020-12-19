@@ -20,14 +20,14 @@ public class ArmyController : MonoBehaviour
 
     public bool 
         isMovedThisTurn,
-        ifOnCastle;
+        isOnCastle;
 
     [HideInInspector]
     public int
         armyDefBonus,
-        armyAttackBonus;
-
-
+        armyAttackBonus,
+        carriedCoins;
+    
     //testing field;
     List<ArmyData> enemyArmyInfoTest;
     private void Awake()
@@ -51,7 +51,7 @@ public class ArmyController : MonoBehaviour
         if (TryGetComponent(out Castle C))
         {
             UpdateCatleArmyInfo();
-            ifOnCastle = true;
+            isOnCastle = true;
             isMovedThisTurn = true;
             ownerId = C.ownerId;
         }
@@ -63,13 +63,13 @@ public class ArmyController : MonoBehaviour
 
         mainGrid = GameController.Insnatce.grid;
 
-        if(!ifOnCastle)
+        if(!isOnCastle)
             isMovedThisTurn = false;
     }
 
     public void UpdateArmyInfo(UnitInfo unitInfo, int count)
     {
-        Debug.Log("Unity name: " + unitInfo.name + armyInfo.Count);
+        Debug.Log("Unity name: " + unitInfo.name + "| unit count: " + count);
         if (armyInfo.Count != 0 && armyInfo.Exists(x => x.unitInfo.name == unitInfo.name))
         {
             armyInfo.Find(x => x.unitInfo.name == unitInfo.name).count += count;
@@ -82,15 +82,15 @@ public class ArmyController : MonoBehaviour
         CalculateArmySpeed();
     }
 
-    public void NewArmyInfo(List<ArmyData> armyDatas)
+    public void UpdateArmyInfo(List<ArmyData> armyDatas, bool isClearArmyData = true)
     {
-        armyInfo = new List<ArmyData>();
+        if(isClearArmyData)
+            armyInfo = new List<ArmyData>();
 
         foreach(ArmyData amry in armyDatas)
         {
             UpdateArmyInfo(amry.unitInfo, amry.count);
         }
-
     }
 
     public void CalculateArmySpeed()
@@ -107,7 +107,7 @@ public class ArmyController : MonoBehaviour
 
     public void OnTurnEnd()
     {
-        if (!ifOnCastle)
+        if (!isOnCastle)
             isMovedThisTurn = false;
     }
 
@@ -132,7 +132,15 @@ public class ArmyController : MonoBehaviour
         {
             Debug.Log("Move to empty point");
         }
-        else if (pointObject.TryGetComponent(out ArmyController otherArmy) && otherArmy.ownerId != 0)
+        else if(pointObject.TryGetComponent(out Castle castle) && castle.ownerId == ownerId)
+        {
+            if(castle.TryGetComponent(out ArmyController castleArmy))
+            {
+                castleArmy.UpdateArmyInfo(armyInfo, false);
+                castle.coinsCurrent += carriedCoins;
+            }
+        }
+        else if (pointObject.TryGetComponent(out ArmyController otherArmy))
         {
             if (otherArmy.ownerId == ownerId)
             {
@@ -151,9 +159,14 @@ public class ArmyController : MonoBehaviour
         mainGrid.MoveTo(position, gameObject);
     }
 
-    public void Die()
+    public void Die(ArmyController armyKiller)
     {
         Debug.Log("Army owned by:" + ownerId + " died");
+        if (isOnCastle)
+        {
+            if (TryGetComponent(out Castle c) && c.coinsCurrent > 0)
+                armyKiller.carriedCoins += c.coinsCurrent / 2;
+        }
         Destroy(gameObject);
     }
 }

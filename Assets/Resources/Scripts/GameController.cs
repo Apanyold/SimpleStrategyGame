@@ -98,6 +98,10 @@ public class GameController : MonoBehaviour
                 ClickDetector();
             }
         }
+        if (Input.GetMouseButtonDown(1))
+        {
+            HideArmyMoveZone();
+        }
         CameraMove();
     }
 
@@ -106,31 +110,25 @@ public class GameController : MonoBehaviour
         GameObject 
             point = grid.GetValue(ExtensionClass.GetMouseWorldPosition()),
             pointMove = gridMoveZone.GetValue(ExtensionClass.GetMouseWorldPosition());
-        ArmyController armyController = null;
-
-        if (point!= null && point.TryGetComponent(out ArmyController A))
-        {
-            armyController = A;
-
-            Debug.Log("Army");
-        }
-
+        
         if (pointMove != null && pointMove.TryGetComponent(out MoveCell M)&& isArmySelected)
         {
             selectedArmy.GetComponent<ArmyController>().MoveArmyTo(pointMove.transform.position);
         }
-
-        if (point != null && armyController != null && armyController.ownerId == goPlayer.GetComponent<PlayerController>().Id && !isArmySelected && !armyController.isMovedThisTurn)
+        if (point != null && point.TryGetComponent(out ArmyController A))
         {
-            Debug.Log("Army Selected");
-            selectedArmy = point;
-            moveList = ArmyMoveZone(selectedArmy);
-            ShowArmyMoveZone();
-            isArmySelected = true;
-        }
-        else if (isArmySelected)
-        {
-            HideArmyMoveZone();
+            if (point != null && A.ownerId == goPlayer.GetComponent<PlayerController>().Id && !isArmySelected && !A.isMovedThisTurn)
+            {
+                Debug.Log("Army Selected");
+                selectedArmy = point;
+                moveList = ArmyMoveZone(selectedArmy);
+                ShowArmyMoveZone();
+                isArmySelected = true;
+            }
+            else if (isArmySelected)
+            {
+                HideArmyMoveZone();
+            }
         }
         //Debug.Log(grid.GetValue(ExtensionClass.GetMouseWorldPosition()));
     }

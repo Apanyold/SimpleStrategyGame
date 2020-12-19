@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Castle : MonoBehaviour
 {
-    private int 
+    public int 
         coinsCurrent,
         peoplesCurrent,
         coinsPerTurn,

@@ -146,13 +146,13 @@ public class FightController
         {
             Debug.Log("DEFENDERS WIN");
             atckArmyController.Die();
-            defArmyCOntroller.NewArmyInfo(attackOrderList);
+            defArmyCOntroller.UpdateArmyInfo(attackOrderList);
         }
         else if (attackOrderList.FindAll(x => x.ownerId == defArmyCOntroller.ownerId).Count == 0)
         {
             Debug.Log("ATTACKERS WIN");
             defArmyCOntroller.Die();
-            atckArmyController.NewArmyInfo(attackOrderList);
+            atckArmyController.UpdateArmyInfo(attackOrderList);
         }
         else if(attackOrderList.Count == 0)
         {
