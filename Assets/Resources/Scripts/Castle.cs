@@ -26,11 +26,11 @@ public class Castle : MonoBehaviour
     {
         if(gameObject.GetComponent<PlayerController>() != null)
         {
-            Debug.Log("Game over. Catle message");
+            //Debug.Log("Game over. Catle message");
         }
         else
         {
-            Debug.Log("Player gets 50% of destroyed castle gold");
+            //Debug.Log("Player gets 50% of destroyed castle gold");
         }
     }
 }

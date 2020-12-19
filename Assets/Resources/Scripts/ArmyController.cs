@@ -52,7 +52,7 @@ public class ArmyController : MonoBehaviour
         enemyArmyInfoTest.Add(new ArmyData(unitInfoList[2], 1, 2));
 
 
-        GameController.Insnatce.fightController.InitiateFight(armyInfo, enemyArmyInfoTest);
+        //GameController.Insnatce.fightController.InitiateFight(armyInfo, enemyArmyInfoTest);
 
         //CreateAttackOrder(enemyArmyInfoTest);
 
@@ -108,20 +108,26 @@ public class ArmyController : MonoBehaviour
         }
 
         GameObject pointObject = mainGrid.GetValue(position);
+        ArmyController controllerEnemy = null;
 
-        if(pointObject == null)
+        if (pointObject != null)
+            controllerEnemy = pointObject.GetComponent<ArmyController>();
+
+        if (pointObject == null)
         {
             Debug.Log("Move to empty point");
         }
-        else if ((pointObject.GetComponent<ArmyController>() != null && pointObject.GetComponent<ArmyController>().ownerId != 0))
+        else if ((controllerEnemy != null && controllerEnemy.ownerId != 0))
         {
-            if (pointObject.GetComponent<ArmyController>().ownerId == ownerId)
+            if (controllerEnemy.ownerId == ownerId)
             {
                 Debug.Log("Move to own Army");
             }
-            else if (pointObject.GetComponent<ArmyController>().ownerId != ownerId)
+            else if (controllerEnemy.ownerId != ownerId)
             {
                 Debug.Log("Move to enemy Army");
+
+                GameController.Insnatce.fightController.InitiateFight(this, controllerEnemy);
             }
         }
 
@@ -147,6 +153,12 @@ public class ArmyController : MonoBehaviour
         }
     }
 
+    public void Die()
+    {
+        Debug.Log("Army owned by:" + ownerId + " died");
+        Destroy(gameObject);
+    }
+
     //private void CreateAttackOrder(List<ArmyData> enemyArmyInfo)
     //{
     //    List<ArmyData> 
@@ -168,9 +180,4 @@ public class ArmyController : MonoBehaviour
 
     //    }
     //}
-
-    public void ArmyDie()
-    {
-        Destroy(gameObject);
-    }
 }
