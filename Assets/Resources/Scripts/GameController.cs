@@ -108,14 +108,14 @@ public class GameController : MonoBehaviour
             pointMove = gridMoveZone.GetValue(ExtensionClass.GetMouseWorldPosition());
         ArmyController armyController = null;
 
-        if (point!= null && point.GetComponent<ArmyController>() != null)
+        if (point!= null && point.TryGetComponent(out ArmyController A))
         {
-            armyController = point.GetComponent<ArmyController>();
+            armyController = A;
 
             Debug.Log("Army");
         }
 
-        if (pointMove != null && pointMove.GetComponent<MoveCell>() != null && isArmySelected)
+        if (pointMove != null && pointMove.TryGetComponent(out MoveCell M)&& isArmySelected)
         {
             selectedArmy.GetComponent<ArmyController>().MoveArmyTo(pointMove.transform.position);
         }
@@ -267,7 +267,7 @@ public class GameController : MonoBehaviour
 
             listSpawnpoints.RemoveAt(0);
         }
-
+        // TESTING
         GameObject gameObject = Instantiate(goArmyPrefab, new Vector3(6, 6, 0), new Quaternion(0, 0, 0, 0), goMapHolder.transform);
         gameObject.GetComponent<ArmyController>().ownerId = FindObjectOfType<PlayerController>().Id;
         //gameObject.GetComponent<ArmyController>().amrySpeed = 2;
@@ -275,6 +275,16 @@ public class GameController : MonoBehaviour
         grid.SetValue(6, 6, gameObject);
 
         goPlayer = FindObjectOfType<PlayerController>().gameObject;
+
+        List<ArmyData>  enemyArmyInfoTest = new List<ArmyData>();
+        enemyArmyInfoTest.Add(new ArmyData(unitsInfo[0], 1, 2));
+        enemyArmyInfoTest.Add(new ArmyData(unitsInfo[1], 1, 2));
+        enemyArmyInfoTest.Add(new ArmyData(unitsInfo[2], 1, 2));
+
+        GameObject gameObjectEnemy = Instantiate(goArmyPrefab, new Vector3(6, 6, 0), new Quaternion(0, 0, 0, 0), goMapHolder.transform);
+        gameObjectEnemy.GetComponent<ArmyController>().ownerId = 2;
+        //gameObjectEnemy.GetComponent<ArmyController>() = enemyArmyInfoTest;
+
     }
 
     //сделать проверку на это во время конца действия атаки или движения

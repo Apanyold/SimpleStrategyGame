@@ -32,13 +32,13 @@ public class ArmyController : MonoBehaviour
     private void Start()
     {
         armyInfo = new List<ArmyData>();
-        enemyArmyInfoTest = new List<ArmyData>();
         unitInfoList = GameController.Insnatce.unitsInfo;
-        if (GetComponent<Castle>() != null)
+        if (TryGetComponent(out Castle C))
         {
             UpdateCatleArmyInfo();
             ifOnCastle = true;
             isMovedThisTurn = true;
+            ownerId = C.ownerId;
         }
 
         //testing field;
@@ -46,12 +46,7 @@ public class ArmyController : MonoBehaviour
         UpdateArmyInfo(new ArmyData(unitInfoList[1], 2, 1));
         UpdateArmyInfo(new ArmyData(unitInfoList[2], 3, 1));
         UpdateArmyInfo(new ArmyData(unitInfoList[3], 1, 1));
-
-        enemyArmyInfoTest.Add(new ArmyData(unitInfoList[0], 1, 2));
-        enemyArmyInfoTest.Add(new ArmyData(unitInfoList[1], 1, 2));
-        enemyArmyInfoTest.Add(new ArmyData(unitInfoList[2], 1, 2));
-
-
+        
         //GameController.Insnatce.fightController.InitiateFight(armyInfo, enemyArmyInfoTest);
 
         //CreateAttackOrder(enemyArmyInfoTest);
@@ -108,26 +103,22 @@ public class ArmyController : MonoBehaviour
         }
 
         GameObject pointObject = mainGrid.GetValue(position);
-        ArmyController controllerEnemy = null;
-
-        if (pointObject != null)
-            controllerEnemy = pointObject.GetComponent<ArmyController>();
 
         if (pointObject == null)
         {
             Debug.Log("Move to empty point");
         }
-        else if ((controllerEnemy != null && controllerEnemy.ownerId != 0))
+        else if (pointObject.TryGetComponent(out ArmyController otherArmy) && otherArmy.ownerId != 0)
         {
-            if (controllerEnemy.ownerId == ownerId)
+            if (otherArmy.ownerId == ownerId)
             {
                 Debug.Log("Move to own Army");
             }
-            else if (controllerEnemy.ownerId != ownerId)
+            else if (otherArmy.ownerId != ownerId)
             {
                 Debug.Log("Move to enemy Army");
 
-                GameController.Insnatce.fightController.InitiateFight(this, controllerEnemy);
+                GameController.Insnatce.fightController.InitiateFight(this, otherArmy);
             }
         }
 
@@ -136,48 +127,9 @@ public class ArmyController : MonoBehaviour
         mainGrid.MoveTo(position, gameObject);
     }
 
-    public void StartFight(GameObject attackSubject)
-    {
-        ArmyController enemyArmy;
-        if (attackSubject != null && attackSubject.GetComponent<ArmyController>() != null)
-            enemyArmy = attackSubject.GetComponent<ArmyController>();
-        else
-        {
-            Debug.LogError("attackSubject is null or attackSubject.ArmyController is null");
-            return;
-        }
-
-        if (armyInfo.Count > 0 && enemyArmy.armyInfo.Count > 0)
-        {
-
-        }
-    }
-
     public void Die()
     {
         Debug.Log("Army owned by:" + ownerId + " died");
         Destroy(gameObject);
     }
-
-    //private void CreateAttackOrder(List<ArmyData> enemyArmyInfo)
-    //{
-    //    List<ArmyData> 
-    //        temp = new List<ArmyData>(),
-    //        orderList = new List<ArmyData>();
-    //    int max = 0;
-
-    //    armyInfo.ForEach(x => {
-    //        if (x.unitInfo.speed > max)
-    //            max = x.unitInfo.speed;
-    //    });
-
-    //    temp = armyInfo.FindAll(x => x.unitInfo.speed == max);
-        
-    //    orderList.Add(temp[Random.Range(0, temp.Count + 1)]);
-
-    //    for (int i = 0; i < enemyArmyInfo.Count + armyInfo.Count; i++)
-    //    {
-
-    //    }
-    //}
 }
