@@ -9,7 +9,6 @@ public class BuildingInfo : ScriptableObject
     public int maxLevel;
     public string buidingName;
     public Sprite image;
-
 }
 
 [CreateAssetMenu(fileName = "New Unit", menuName = "ScriptableObjects/Unit")]

@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class ArmyController : MonoBehaviour
 {
+    #region Variables
     [HideInInspector]
     public int ownerId;
 
@@ -13,7 +14,6 @@ public class ArmyController : MonoBehaviour
 
     [HideInInspector]
     public List<ArmyData> armyInfo;
-
     private List<UnitInfo> unitInfoList;
 
     private Grid mainGrid;
@@ -25,11 +25,21 @@ public class ArmyController : MonoBehaviour
     [HideInInspector]
     public int
         armyDefBonus,
-        armyAttackBonus,
-        carriedCoins;
-    
-    //testing field;
-    List<ArmyData> enemyArmyInfoTest;
+        armyAttackBonus;
+
+    public int carriedCoins
+    {
+        get
+        {
+            return carriedCoins;
+        }
+        set
+        {
+            Debug.Log("carriedCoins: " + carriedCoins + " value: " + value);
+            carriedCoins = value;
+        }
+    }
+    #endregion
     private void Awake()
     {
         armyInfo = new List<ArmyData>();
@@ -40,9 +50,10 @@ public class ArmyController : MonoBehaviour
         unitInfoList = GameController.Insnatce.unitsInfo;
 
         //testing field;
-        Debug.Log("ArmyController start with owner ID: " + ownerId);
+        //Debug.Log("ArmyController start with owner ID: " + ownerId);
         if (ownerId != 1)
         {
+            Debug.Log("Army with id 1 start");
             UpdateArmyInfo(unitInfoList[0], 1);
             UpdateArmyInfo(unitInfoList[1], 1);
             UpdateArmyInfo(unitInfoList[2], 1);
@@ -55,12 +66,6 @@ public class ArmyController : MonoBehaviour
             isMovedThisTurn = true;
             ownerId = C.ownerId;
         }
-
-
-        //GameController.Insnatce.fightController.InitiateFight(armyInfo, enemyArmyInfoTest);
-
-        //CreateAttackOrder(enemyArmyInfoTest);
-
         mainGrid = GameController.Insnatce.grid;
 
         if(!isOnCastle)
@@ -69,7 +74,7 @@ public class ArmyController : MonoBehaviour
 
     public void UpdateArmyInfo(UnitInfo unitInfo, int count)
     {
-        Debug.Log("Unity name: " + unitInfo.name + "| unit count: " + count);
+        //Debug.Log("Unity name: " + unitInfo.name + "| unit count: " + count);
         if (armyInfo.Count != 0 && armyInfo.Exists(x => x.unitInfo.name == unitInfo.name))
         {
             armyInfo.Find(x => x.unitInfo.name == unitInfo.name).count += count;
@@ -120,9 +125,8 @@ public class ArmyController : MonoBehaviour
 
     public void MoveArmyTo(Vector3 position)
     {
-        if (isMovedThisTurn)
+        if (isMovedThisTurn || isOnCastle)
         {
-            UiController.Instance.ShowNotification("Your army has already moved on this turn");
             return;
         }
 
@@ -164,9 +168,14 @@ public class ArmyController : MonoBehaviour
         Debug.Log("Army owned by:" + ownerId + " died");
         if (isOnCastle)
         {
-            if (TryGetComponent(out Castle c) && c.coinsCurrent > 0)
-                armyKiller.carriedCoins += c.coinsCurrent / 2;
+            if (TryGetComponent(out Castle c))
+            {
+                if(c.coinsCurrent > 0)
+                    armyKiller.carriedCoins += c.coinsCurrent / 2;
+                c.CastleDestroy();
+            }
         }
-        Destroy(gameObject);
+        else
+            Destroy(gameObject);
     }
 }

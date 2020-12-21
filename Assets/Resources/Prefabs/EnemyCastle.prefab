@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 8040235559652573674}
   - component: {fileID: 2805965034223289996}
   - component: {fileID: 5568106019762544879}
+  - component: {fileID: -922862503550497382}
   m_Layer: 0
-  m_Name: Castle
+  m_Name: EnemyCastle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -94,4 +95,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9777e275c3739c4dbf605ad5461b2af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: {fileID: 0}
+  coinsCurrent: 0
+  peoplesCurrent: 0
+  coinsPerTurn: 0
+  poeplesPerTurn: 0
+  ownerId: 0
+  castleArmy: {fileID: 0}
+--- !u!114 &-922862503550497382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4511595174759319742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a6f8c601268c634aa0e1b1033b14f2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ownerId: 0
+  amrySpeed: 0
+  isMovedThisTurn: 0
+  isOnCastle: 1
+  armyDefBonus: 0
+  armyAttackBonus: 0

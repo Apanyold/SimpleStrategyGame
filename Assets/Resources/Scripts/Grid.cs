@@ -15,8 +15,6 @@ public class Grid: MonoBehaviour
         this.height = height;
 
         gridArray = new GameObject[width, height];
-
-        Debug.Log("Grid init");
     }
 
     public Vector3 GetWorldPosition(int x, int y)

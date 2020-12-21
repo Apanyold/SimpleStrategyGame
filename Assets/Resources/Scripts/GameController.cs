@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -20,6 +21,9 @@ public class GameController : MonoBehaviour
     [SerializeField]
     public int startCoins, startPeoples;
 
+    [SerializeField]
+    public UiController uiController;
+
     private int
         mapSize,
         botsCount,
@@ -34,7 +38,7 @@ public class GameController : MonoBehaviour
     private GameObject
         goFieldCell,
         goMapHolder,
-        goCastlePrefab,
+        goAiCastlePrefab,
         goPlayerCastlePrefab,
         goArmyPrefab,
         goMoveCellPrefab,
@@ -61,10 +65,14 @@ public class GameController : MonoBehaviour
 
     private GraphicRaycaster m_Raycaster;
     private EventSystem m_EventSystem;
-    PointerEventData m_PointerEventData;
+    private PointerEventData m_PointerEventData;
 
+    [HideInInspector]
     public FightController fightController;
+    [HideInInspector]
+    public PlayerController player;
     #endregion
+
     private void Awake()
     {
         if (GameController.insnatce == null)
@@ -77,11 +85,19 @@ public class GameController : MonoBehaviour
         m_EventSystem = FindObjectOfType<EventSystem>();
         fightController = new FightController();
         moveList = new List<(int x, int y)>();
+
+        MapGenerator();
+
+        uiController.InitInterface();
     }
 
-    void Start()
+    public event Action onTurnEnd;
+
+    static int nextTurnId =1;
+    public event Predicate<int> isMyTurn = delegate (int x) { return x == nextTurnId; };
+    public void OnTurnEnd()
     {
-        MapGenerator();
+        isMyTurn?.Invoke(1);
     }
 
     private void Update()
@@ -98,10 +114,6 @@ public class GameController : MonoBehaviour
                 ClickDetector();
             }
         }
-        if (Input.GetMouseButtonDown(1))
-        {
-            HideArmyMoveZone();
-        }
         CameraMove();
     }
 
@@ -114,15 +126,17 @@ public class GameController : MonoBehaviour
         if (pointMove != null && pointMove.TryGetComponent(out MoveCell M)&& isArmySelected)
         {
             selectedArmy.GetComponent<ArmyController>().MoveArmyTo(pointMove.transform.position);
+
+            HideArmyMoveZone();
         }
         if (point != null && point.TryGetComponent(out ArmyController A))
         {
-            if (point != null && A.ownerId == goPlayer.GetComponent<PlayerController>().Id && !isArmySelected && !A.isMovedThisTurn)
+            if (point != null && A.ownerId == goPlayer.GetComponent<PlayerController>().Id && !isArmySelected && !A.isMovedThisTurn && !A.isOnCastle)
             {
                 Debug.Log("Army Selected");
                 selectedArmy = point;
                 moveList = ArmyMoveZone(selectedArmy);
-                ShowArmyMoveZone();
+                ShowArmyMoveZone(moveList);
                 isArmySelected = true;
             }
             else if (isArmySelected)
@@ -138,13 +152,19 @@ public class GameController : MonoBehaviour
     /// </summary>
     /// <param name="army"></param>
     /// <returns></returns>
-    public List<(int x, int y)> ArmyMoveZone(GameObject army)
+    public List<(int x, int y)> ArmyMoveZone(GameObject army, bool isFromCastle = false)
     {
         List<(int x, int y)> moveList = new List<(int x, int y)>();
 
         int x = (int)army.transform.position.x,
             y = (int)army.transform.position.y,
-            speed = army.GetComponent<ArmyController>().amrySpeed;
+            speed;
+
+        if (army.TryGetComponent(out ArmyController A) && !isFromCastle)
+            speed = A.amrySpeed;
+        else
+            speed = 1;
+
         Debug.Log("Army speed: " + speed);
         for(int jx = x - speed; jx <= x + speed; jx++)
         {
@@ -169,7 +189,7 @@ public class GameController : MonoBehaviour
         return moveList;
     }
 
-    private void ShowArmyMoveZone()
+    private void ShowArmyMoveZone(List<(int x, int y)> moveList)
     {
         for (int i = 0; i < moveList.Count; i++)
         {
@@ -206,7 +226,7 @@ public class GameController : MonoBehaviour
         listSpawnpoints = new List<Vector3>();
 
         if(mapSize == 0)
-            mapSize = Random.Range(15, 51);
+            mapSize = UnityEngine.Random.Range(15, 51);
 
         int width = mapSize, height = mapSize;
 
@@ -245,26 +265,28 @@ public class GameController : MonoBehaviour
     private void SpawnSelector()
     {
         if (botsCount == 0 && botsMaxCount > botsMinCount)
-            botsCount = Random.Range(3, botsMaxCount + 1);
+            botsCount = UnityEngine.Random.Range(3, botsMaxCount + 1);
 
         Debug.Log("Total players count: " + (botsCount + playersCount));
         
         mainCamera.transform.position = new Vector3(listSpawnpoints[0].x, listSpawnpoints[0].y, mainCamera.transform.position.z);
-
+        // Spawn player
         grid.GetXY(listSpawnpoints[0], out int x, out int y);
-        grid.SetValue(x, y, 
-            Instantiate(goPlayerCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform));
+        player = grid.SetValue(x, y, 
+            Instantiate(goPlayerCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform)).GetComponent<PlayerController>();
 
 
         listSpawnpoints.RemoveAt(0);
-
+        // Spawn bots
         for (int i = 0; i< botsCount; i++)
         {
             grid.GetXY(listSpawnpoints[0], out int x2, out int y2);
-            grid.SetValue(x2, y2, Instantiate(goCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform));
+            grid.SetValue(x2, y2, Instantiate(goAiCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform));
 
             listSpawnpoints.RemoveAt(0);
         }
+
+
         // TESTING
         GameObject gameObject = grid.SetValue(6,6,Instantiate(goArmyPrefab, new Vector3(6, 6, 0), new Quaternion(0, 0, 0, 0), goMapHolder.transform));
         if(gameObject.TryGetComponent(out ArmyController A))

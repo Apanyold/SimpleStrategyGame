@@ -2,32 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TownHall : IBuilding
+
+public class Buildings
 {
-    private BuildingInfo buildingInfo = GameController.Insnatce.buildingsInfo.Find(x => x.name == "TownHall");
+    private Castle castle;
 
-    public void OnBuy()
+    public enum ACTION {BUY,TURN }
+
+    public Buildings(Castle castle)
     {
-
+        this.castle = castle;
     }
 
-    public void OnTurnEnd()
+    public void ActionWithBuilding(BuildingsData buildingInfo , ACTION action = ACTION.BUY)
     {
-
+        switch (buildingInfo.building.buidingName)
+        {
+            case "TownHall":
+                {
+                    TownHall townHall = new TownHall(buildingInfo, castle);
+                    if(action == ACTION.BUY)
+                        townHall.OnBuy();
+                    else if (action == ACTION.TURN)
+                        townHall.OnTurnStart();
+                    break;
+                }
+        }
     }
-}
 
-public class Barracks : IBuilding
-{
-    private BuildingInfo buildingInfo = GameController.Insnatce.buildingsInfo.Find(x => x.name == "Barracks");
-
-    public void OnBuy()
+    public void OnTurnStart()
     {
-
-    }
-
-    public void OnTurnEnd()
-    {
-
+        foreach(BuildingsData buildingInfo in castle.buildingsInfo)
+        {
+            ActionWithBuilding(buildingInfo, ACTION.TURN);
+        }
     }
 }
