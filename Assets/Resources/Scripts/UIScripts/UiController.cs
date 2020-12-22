@@ -53,9 +53,8 @@ public class UiController : MonoBehaviour
 
     IEnumerator InitHud()
     {
-        listHud.ForEach(x => x.OnStart());
-
         yield return new WaitForEndOfFrame();
+        listHud.ForEach(x => x.OnStart());
         UpdateHud();
         Open("hud_buildings");
     }

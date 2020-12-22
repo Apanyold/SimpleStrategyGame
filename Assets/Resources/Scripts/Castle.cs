@@ -7,7 +7,8 @@ public class Castle : MonoBehaviour
     public int
         coinsCurrent,
         poeplesLimit;
-    
+
+    [SerializeField]
     private int peoplesCurrent;
     public int PeoplesCurrent
     {
@@ -40,7 +41,8 @@ public class Castle : MonoBehaviour
         armyTravelDefBonus,
         armyTravelAttackBonus;
 
-    //List<(int x, int y)>
+    private BuyDelay buyDelay;
+    private List<BuyDelay> buyDelayList;
 
     private void Start()
     {
@@ -51,7 +53,7 @@ public class Castle : MonoBehaviour
         buildingsInfo = new List<BuildingsData>();
         avaliebleToTrainUnits = new List<ArmyData>();
         castleArmy = GetComponent<ArmyController>();
-
+        buyDelayList = new List<BuyDelay>();
         buildings = new Buildings(this);
         foreach (BuildingInfo info in GameController.Insnatce.buildingsInfo)
         {
@@ -81,7 +83,12 @@ public class Castle : MonoBehaviour
     public void OnTurnStart()
     {
         castleAmryList.ForEach(x => x.OnTurnStart());
+
         buildings.OnTurnStart();
+
+        BuyDelayOnTurn();
+
+        Debug.Log("avaliebleToTrainUnit Castle " + avaliebleToTrainUnits.Count);
     }
 
     public void MoveArmyFromCastle(List<ArmyData> data)
@@ -108,6 +115,39 @@ public class Castle : MonoBehaviour
         {
             Debug.LogError("Cannot place army");
         }
+    }
+
+    public void BuyUnitWithDelay(UnitInfo info, int count)
+    {
+        if (info.peopleCost * count > peoplesCurrent || info.coinsCost * count > coinsCurrent)
+        {
+            Debug.LogError("Not enought");
+            return;
+        }
+
+        peoplesCurrent -= info.peopleCost * count;
+        coinsCurrent -= info.coinsCost * count;
+
+        buyDelay = new BuyDelay(this, new ArmyData(info), count);
+    }
+
+    public void BuyDelayOnTurn()
+    {
+        if (buyDelayList.Count == 0)
+            return;
+
+        foreach(BuyDelay delay in buyDelayList.ToArray())
+        {
+            if (!delay.OnTurn())
+            {
+                buyDelayList.Remove(delay);
+            }
+        }
+    }
+
+    public void UpdateArmyListy(ArmyController army)
+    {
+        castleAmryList.Remove(army);
     }
 
     private void Update()

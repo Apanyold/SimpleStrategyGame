@@ -19,10 +19,11 @@ public class GameController : MonoBehaviour
     public List<UnitInfo> unitsInfo;
 
     [SerializeField]
-    public int 
-        startCoins, 
+    public int
+        startCoins,
         startPeoples,
-        startPeoplesLimit;
+        startPeoplesLimit,
+        currentTrun = 1;
 
     [SerializeField]
     public UiController uiController;
@@ -31,8 +32,8 @@ public class GameController : MonoBehaviour
         mapSize,
         botsCount,
         playersCount = 1,
-        botsMaxCount = 5,
-        botsMinCount = 3;
+        botsMaxCount = 2, // change to 5
+        botsMinCount = 1; // change to 3
 
     [SerializeField]
     private float cellSize = 1f;
@@ -46,7 +47,7 @@ public class GameController : MonoBehaviour
         goArmyPrefab,
         goMoveCellPrefab,
         goFieldHolder;
-    
+
     [HideInInspector]
     public bool isArmySelected = false;
 
@@ -55,14 +56,14 @@ public class GameController : MonoBehaviour
     private List<Vector3> listSpawnpoints;
 
     [SerializeField]
-    public GameObject mainCamera; 
+    public GameObject mainCamera;
 
     [HideInInspector]
-    public Grid 
+    public Grid
         grid,
         gridMoveZone;
 
-    private GameObject 
+    private GameObject
         selectedArmy = null,
         goPlayer;
 
@@ -98,7 +99,7 @@ public class GameController : MonoBehaviour
 
     public event Action onTurnEnd;
 
-    static int nextTurnId =1;
+    static int nextTurnId = 1;
     public event Predicate<int> isMyTurn = delegate (int x) { return x == nextTurnId; };
     public void OnTurnEnd()
     {
@@ -113,26 +114,26 @@ public class GameController : MonoBehaviour
             m_PointerEventData.position = Input.mousePosition;
             List<RaycastResult> results = new List<RaycastResult>();
             m_Raycaster.Raycast(m_PointerEventData, results);
-            
+
             if (results.Count == 0)
             {
                 ClickDetector();
             }
         }
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(3))
         {
-            //Debug.Log(turnOrderList.Count);
+            EndTurn();
         }
         CameraMove();
     }
 
     private void ClickDetector()
     {
-        GameObject 
+        GameObject
             point = grid.GetValue(ExtensionClass.GetMouseWorldPosition()),
             pointMove = gridMoveZone.GetValue(ExtensionClass.GetMouseWorldPosition());
-        
-        if (pointMove != null && pointMove.TryGetComponent(out MoveCell M)&& isArmySelected)
+
+        if (pointMove != null && pointMove.TryGetComponent(out MoveCell M) && isArmySelected)
         {
             selectedArmy.GetComponent<ArmyController>().MoveArmyTo(pointMove.transform.position);
 
@@ -175,7 +176,7 @@ public class GameController : MonoBehaviour
             speed = 1;
 
         Debug.Log("Army speed: " + speed);
-        for(int jx = x - speed; jx <= x + speed; jx++)
+        for (int jx = x - speed; jx <= x + speed; jx++)
         {
             if (jx < 0)
                 continue;
@@ -243,7 +244,7 @@ public class GameController : MonoBehaviour
     {
         listSpawnpoints = new List<Vector3>();
 
-        if(mapSize == 0)
+        if (mapSize == 0)
             mapSize = UnityEngine.Random.Range(15, 51);
 
         int width = mapSize, height = mapSize;
@@ -256,7 +257,7 @@ public class GameController : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                Instantiate(goFieldCell,new Vector3(x,y,0), new Quaternion(0,0,0,0), goFieldHolder.transform);
+                Instantiate(goFieldCell, new Vector3(x, y, 0), new Quaternion(0, 0, 0, 0), goFieldHolder.transform);
 
                 if ((x == width - 1 || x == 0) && (y == height - 1 || y == 0))
                 {
@@ -286,24 +287,32 @@ public class GameController : MonoBehaviour
             botsCount = UnityEngine.Random.Range(3, botsMaxCount + 1);
 
         Debug.Log("Total players count: " + (botsCount + playersCount));
-        
+
         mainCamera.transform.position = new Vector3(listSpawnpoints[0].x, listSpawnpoints[0].y, mainCamera.transform.position.z);
         // Spawn player
         grid.GetXY(listSpawnpoints[0], out int x, out int y);
-        turnOrderList.Add(grid.SetValue(x, y, 
+        turnOrderList.Add(grid.SetValue(x, y,
             Instantiate(goPlayerCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform)));
 
         player = turnOrderList[0].GetComponent<PlayerController>();
-        
+
         listSpawnpoints.RemoveAt(0);
         // Spawn bots
-        for (int i = 0; i< botsCount; i++)
+        for (int i = 0; i < botsCount; i++)
         {
             grid.GetXY(listSpawnpoints[0], out int x2, out int y2);
             turnOrderList.Add(grid.SetValue(x2, y2, Instantiate(goAiCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform)));
 
             listSpawnpoints.RemoveAt(0);
         }
+
+        StartCoroutine(StartGame());
+    }
+    IEnumerator StartGame()
+    {
+        yield return new WaitForEndOfFrame();
+
+        EndTurn();
     }
 
     public void CreateAmry(List<ArmyData> data, (int x, int y) positon, Castle castle)
@@ -336,7 +345,16 @@ public class GameController : MonoBehaviour
     private int ticker = 0;
     public void EndTurn()
     {
-        if (turnOrderList[ticker] != null && ticker < turnOrderList.Count)
+        Debug.Log("Player end turn " + ticker);
+        if(ticker >= turnOrderList.Count)
+        {
+            currentTrun++;
+            Debug.Log("CURRENT TURN: " + currentTrun);
+            ticker = 0;
+            StartTurn(ticker);
+            return;
+        }
+        if (turnOrderList[ticker] != null)
         {
             StartTurn(ticker);
             ticker++;
@@ -344,11 +362,6 @@ public class GameController : MonoBehaviour
         else if(turnOrderList[ticker] == null)
         {
             turnOrderList.RemoveAt(ticker);
-            StartTurn(ticker);
-        }
-        else
-        {
-            ticker = 0;
             StartTurn(ticker);
         }
     }

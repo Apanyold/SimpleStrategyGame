@@ -190,6 +190,8 @@ public class ArmyController : MonoBehaviour
             {
                 castleArmy.UpdateArmyInfo(armyInfo, false);
                 castle.coinsCurrent += CarriedCoins;
+                castle.UpdateArmyListy(this);
+                Destroy(this);
             }
         }
         else if (pointObject.TryGetComponent(out ArmyController otherArmy))

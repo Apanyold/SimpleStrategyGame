@@ -7,7 +7,7 @@ public class Buildings
 {
     private Castle castle;
 
-    public enum ACTION {BUY,TURN }
+    public enum ACTION {BUY, STARTTURN }
 
     public Buildings(Castle castle)
     {
@@ -24,7 +24,7 @@ public class Buildings
                     TownHall building = new TownHall(buildingInfo, castle);
                     if(action == ACTION.BUY)
                         building.OnBuy();
-                    else if (action == ACTION.TURN)
+                    else if (action == ACTION.STARTTURN)
                         building.OnTurnStart();
                     break;
                 }
@@ -33,7 +33,7 @@ public class Buildings
                     House building = new House(buildingInfo, castle);
                     if (action == ACTION.BUY)
                         building.OnBuy();
-                    else if (action == ACTION.TURN)
+                    else if (action == ACTION.STARTTURN)
                         building.OnTurnStart();
                     break;
                 }
@@ -42,7 +42,7 @@ public class Buildings
                     Wall building = new Wall(buildingInfo, castle);
                     if (action == ACTION.BUY)
                         building.OnBuy();
-                    else if (action == ACTION.TURN)
+                    else if (action == ACTION.STARTTURN)
                         building.OnTurnStart();
                     break;
                 }
@@ -51,7 +51,7 @@ public class Buildings
                     Temple building = new Temple(buildingInfo, castle);
                     if (action == ACTION.BUY)
                         building.OnBuy();
-                    else if (action == ACTION.TURN)
+                    else if (action == ACTION.STARTTURN)
                         building.OnTurnStart();
                     break;
                 }
@@ -60,7 +60,7 @@ public class Buildings
                     Barracks building = new Barracks(buildingInfo, castle);
                     if (action == ACTION.BUY)
                         building.OnBuy();
-                    else if (action == ACTION.TURN)
+                    else if (action == ACTION.STARTTURN)
                         building.OnTurnStart();
                     break;
                 }
@@ -71,7 +71,7 @@ public class Buildings
     {
         foreach(BuildingsData buildingInfo in castle.buildingsInfo)
         {
-            ActionWithBuilding(buildingInfo, ACTION.TURN);
+            ActionWithBuilding(buildingInfo, ACTION.STARTTURN);
         }
     }
 }

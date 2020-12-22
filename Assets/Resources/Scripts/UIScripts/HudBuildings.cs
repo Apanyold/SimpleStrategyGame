@@ -16,6 +16,30 @@ public class HudBuildings : Hud
 
     public Button buttonSwitch;
 
+    public override void OnOpen()
+    {
+        gameObject.SetActive(true);
+        
+    }
+
+    public override void OnClose()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public override void OnStart()
+    {
+        gameObject.SetActive(false);
+
+        buttonSwitch.onClick.AddListener(() => { UiController.Instance.Open("hud_units"); OnClose(); });
+
+        buttonsList = new List<BuildingPrefabContorller>();
+
+        buildings = GameController.Insnatce.player.playerCastle.buildings;
+
+        CreateHudElements();
+    }
+
     public void CreateHudElements()
     {
         BuildingPrefabContorller temp;
@@ -39,28 +63,5 @@ public class HudBuildings : Hud
         buildings.ActionWithBuilding(building);
 
         UpdateHudBuildings();
-    }
-
-    public override void OnOpen()
-    {
-        gameObject.SetActive(true);
-
-        buttonsList = new List<BuildingPrefabContorller>();
-
-        buildings = GameController.Insnatce.player.playerCastle.buildings;
-
-        CreateHudElements();
-    }
-
-    public override void OnClose()
-    {
-        gameObject.SetActive(false);
-    }
-
-    public override void OnStart()
-    {
-        gameObject.SetActive(false);
-
-        buttonSwitch.onClick.AddListener(() => { UiController.Instance.Open("hud_units"); OnClose(); });
     }
 }

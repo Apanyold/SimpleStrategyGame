@@ -12,6 +12,11 @@ public class ArmyData : IComparable<ArmyData>
         this.ownerId = ownerId;
     }
 
+    public ArmyData(UnitInfo unitInfo)
+    {
+        this.unitInfo = unitInfo;
+    }
+
     public ArmyData(ArmyData data)
     {
         this.unitInfo = data.unitInfo;

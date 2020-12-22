@@ -4,8 +4,8 @@ using UnityEngine;
 
 public interface IBuilding
 {
-    void OnTurnStart();
     void OnBuy();
+    void OnTurnStart();
 }
 
 
@@ -21,15 +21,7 @@ public class TownHall : IBuilding
         this.castle = castle;
 
     }
-
-    public void OnTurnStart()
-    {
-        for (int i = 1; i < buildingInfo.currentLevel; i++)
-            tax += 0.02f;
-        float taxIncome = castle.PeoplesCurrent * tax;
-        castle.coinsCurrent += (int)taxIncome;
-    }
-
+    
     public void OnBuy()
     {
         Debug.Log(buildingInfo.upgrateCost);
@@ -42,6 +34,16 @@ public class TownHall : IBuilding
             castle.coinsCurrent -= buildingInfo.upgrateCost;
             buildingInfo.currentLevel++;
         }
+    }
+
+    public void OnTurnStart()
+    {
+        if (GameController.Insnatce.currentTrun == 1)
+            return;
+        for (int i = 1; i < buildingInfo.currentLevel; i++)
+            tax += 0.02f;
+        float taxIncome = castle.PeoplesCurrent * tax;
+        castle.coinsCurrent += (int)taxIncome;
     }
 }
 
@@ -147,10 +149,22 @@ public class Temple : IBuilding
             }
         }
     }
+    public void CheckPermissionAndBonuses()
+    {
+        ArmyData data = new ArmyData(null, 0, castle.ownerId); ;
+        if (buildingInfo.currentLevel == 1)
+        {
+            if (!castle.avaliebleToTrainUnits.Exists(x => x.unitInfo.unitName == "Recrut"))
+            {
+                data.unitInfo = GameController.Insnatce.unitsInfo.Find(x => x.unitName == "Recrut");
+                castle.avaliebleToTrainUnits.Add(data);
+            }
+        }
+    }
 
     public void OnTurnStart()
     {
-
+        CheckPermissionAndBonuses();
     }
 }
 
@@ -193,34 +207,38 @@ public class Barracks : IBuilding
         }
         if (buildingInfo.currentLevel == 2 || buildingInfo.currentLevel == 3)
         {
+            data.unitInfo = GameController.Insnatce.unitsInfo.Find(x => x.unitName == "Archer");
             data.UnitTrainTime--;
-            castle.avaliebleToTrainUnits[0] = data;
+            castle.avaliebleToTrainUnits[castle.avaliebleToTrainUnits.FindIndex(x => x.unitInfo.unitName == "Archer")] = data;
         }
         if (buildingInfo.currentLevel == 4)
         {
             data.unitInfo = GameController.Insnatce.unitsInfo.Find(x => x.unitName == "Footman");
-            castle.avaliebleToTrainUnits[1] = data;
+            castle.avaliebleToTrainUnits.Add(data);
         }
         if (buildingInfo.currentLevel == 5 || buildingInfo.currentLevel == 6)
         {
+            data.unitInfo = GameController.Insnatce.unitsInfo.Find(x => x.unitName == "Footman");
             data.UnitTrainTime--;
-            castle.avaliebleToTrainUnits[1] = data;
+            castle.avaliebleToTrainUnits[castle.avaliebleToTrainUnits.FindIndex(x => x.unitInfo.unitName == "Footman")] = data;
         }
         if (buildingInfo.currentLevel == 7)
         {
             data.unitInfo = GameController.Insnatce.unitsInfo.Find(x => x.unitName == "Rider");
-            castle.avaliebleToTrainUnits[2] = data;
+            castle.avaliebleToTrainUnits.Add(data);
         }
         if (buildingInfo.currentLevel == 8 || buildingInfo.currentLevel == 9 || buildingInfo.currentLevel == 10)
         {
+            data.unitInfo = GameController.Insnatce.unitsInfo.Find(x => x.unitName == "Rider");
             data.UnitTrainTime--;
-            castle.avaliebleToTrainUnits[2] = data;
+            castle.avaliebleToTrainUnits[castle.avaliebleToTrainUnits.FindIndex(x => x.unitInfo.unitName == "Rider")] = data;
         }
 
     }
 
     public void OnTurnStart()
     {
-
+        if(buildingInfo.currentLevel!= buildingInfo.building.maxLevel)
+            CheckPermissionAndBonuses();
     }
 }
