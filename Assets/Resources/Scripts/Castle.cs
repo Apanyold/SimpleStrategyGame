@@ -9,16 +9,7 @@ public class Castle : MonoBehaviour
         poeplesLimit;
 
     [SerializeField]
-    private int peoplesCurrent;
-    public int PeoplesCurrent
-    {
-        get { return peoplesCurrent; }
-        set
-        {
-            if (value > poeplesLimit)
-                peoplesCurrent = poeplesLimit;
-        }
-    }
+    public int peoplesCurrent;
 
     public int ownerId;
 
@@ -29,7 +20,7 @@ public class Castle : MonoBehaviour
     [HideInInspector]
     public ArmyController castleArmy;
 
-    public List<ArmyController> castleAmryList;
+    public List<ArmyController> ownAmryList;
     public List<ArmyData> avaliebleToTrainUnits;
     public List<BuildingsData> buildingsInfo;
 
@@ -46,9 +37,15 @@ public class Castle : MonoBehaviour
 
     private void Start()
     {
+        if (gameObject.TryGetComponent(out PlayerController p))
+        {
+            ownerId = p.Id;
+        }
+        else
+            ownerId = Random.Range(2, 1000);
+
         coinsCurrent = GameController.Insnatce.startCoins;
         peoplesCurrent = GameController.Insnatce.startPeoples;
-        poeplesLimit = GameController.Insnatce.startPeoplesLimit;
 
         buildingsInfo = new List<BuildingsData>();
         avaliebleToTrainUnits = new List<ArmyData>();
@@ -62,42 +59,44 @@ public class Castle : MonoBehaviour
             buildingsInfo.Add(temp);
         }
     }
-    
+
     private void OnDestroy()
     {
-        if(gameObject.GetComponent<PlayerController>() != null)
+        foreach (ArmyController army in ownAmryList.ToArray())
         {
-            //Debug.Log("Game over. Catle message");
-        }
-        else
-        {
-            //Debug.Log("Player gets 50% of destroyed castle gold");
+            if (army == null)
+                continue;
+            else
+                Destroy(army.gameObject);
         }
     }
 
     public void CastleDestroy()
     {
-
+        Destroy(gameObject);
     }
 
     public void OnTurnStart()
     {
-        castleAmryList.ForEach(x => x.OnTurnStart());
+        ownAmryList.ForEach(x => x.OnTurnStart());
 
         buildings.OnTurnStart();
 
         BuyDelayOnTurn();
 
-        Debug.Log("avaliebleToTrainUnit Castle " + avaliebleToTrainUnits.Count);
+        if (gameObject.TryGetComponent(out AiController ai))
+        {
+            Debug.Log("OnTurnStart ai castle");
+            ai.OnTurnStart();
+        }
     }
 
-    public void MoveArmyFromCastle(List<ArmyData> data)
+    public bool MoveArmyFromCastle(List<ArmyData> data)
     {
         List<(int x, int y)> ps = GameController.Insnatce.ArmyMoveZone(gameObject, true);
         ps.Shuffle();
-        (int x, int y) position = (0,0);
-        Debug.Log("Lenght||||||" + ps.Count);
-        foreach ((int x, int y) x in ps) 
+        (int x, int y) position = (0, 0);
+        foreach ((int x, int y) x in ps)
         {
             if (GameController.Insnatce.PositionAvailabilityCheck(x))
             {
@@ -108,12 +107,15 @@ public class Castle : MonoBehaviour
 
         if (position.x != 0 || position.y != 0)
         {
+            Debug.Log("Data count " + data.Count);
             castleArmy.ArmySplit(data);
-            GameController.Insnatce.CreateAmry(data, position, GetComponent<Castle>());
+            ownAmryList.Add(GameController.Insnatce.CreateAmry(data, position, this));
+            return true;
         }
         else
         {
             Debug.LogError("Cannot place army");
+            return false;
         }
     }
 
@@ -129,6 +131,7 @@ public class Castle : MonoBehaviour
         coinsCurrent -= info.coinsCost * count;
 
         buyDelay = new BuyDelay(this, new ArmyData(info), count);
+        buyDelayList.Add(buyDelay);
     }
 
     public void BuyDelayOnTurn()
@@ -136,9 +139,9 @@ public class Castle : MonoBehaviour
         if (buyDelayList.Count == 0)
             return;
 
-        foreach(BuyDelay delay in buyDelayList.ToArray())
+        foreach (BuyDelay delay in buyDelayList.ToArray())
         {
-            if (!delay.OnTurn())
+            if (delay.OnTurn())
             {
                 buyDelayList.Remove(delay);
             }
@@ -147,7 +150,7 @@ public class Castle : MonoBehaviour
 
     public void UpdateArmyListy(ArmyController army)
     {
-        castleAmryList.Remove(army);
+        ownAmryList.Remove(army);
     }
 
     private void Update()
@@ -164,11 +167,7 @@ public class Castle : MonoBehaviour
         }
         if (Input.GetMouseButtonDown(2) && ownerId == 1)
         {
-
-            //castleArmy = GetComponent<ArmyController>();
-            //castleArmy.UpdateArmyInfo(GameController.Insnatce.unitsInfo[0], 1);
-            //castleArmy.UpdateArmyInfo(GameController.Insnatce.unitsInfo[1], 1);
-            //castleArmy.UpdateArmyInfo(GameController.Insnatce.unitsInfo[2], 1);
+            Debug.Log(castleArmy.armyInfo.Count);
         }
     }
 }

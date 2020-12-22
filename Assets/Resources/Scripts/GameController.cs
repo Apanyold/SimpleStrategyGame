@@ -32,8 +32,8 @@ public class GameController : MonoBehaviour
         mapSize,
         botsCount,
         playersCount = 1,
-        botsMaxCount = 2, // change to 5
-        botsMinCount = 1; // change to 3
+        botsMaxCount = 5,
+        botsMinCount = 3;
 
     [SerializeField]
     private float cellSize = 1f;
@@ -143,7 +143,6 @@ public class GameController : MonoBehaviour
         {
             if (A.ownerId == 1 && !isArmySelected && !A.isMovedThisTurn && !A.isOnCastle)
             {
-                Debug.Log("Army Selected");
                 selectedArmy = point;
                 moveList = ArmyMoveZone(selectedArmy);
                 ShowArmyMoveZone(moveList);
@@ -175,7 +174,6 @@ public class GameController : MonoBehaviour
         else
             speed = 1;
 
-        Debug.Log("Army speed: " + speed);
         for (int jx = x - speed; jx <= x + speed; jx++)
         {
             if (jx < 0)
@@ -281,6 +279,7 @@ public class GameController : MonoBehaviour
         SpawnSelector();
     }
 
+    
     private void SpawnSelector()
     {
         if (botsCount == 0 && botsMaxCount > botsMinCount)
@@ -297,15 +296,16 @@ public class GameController : MonoBehaviour
         player = turnOrderList[0].GetComponent<PlayerController>();
 
         listSpawnpoints.RemoveAt(0);
-        // Spawn bots
+        //Spawn bots botsCount
         for (int i = 0; i < botsCount; i++)
         {
             grid.GetXY(listSpawnpoints[0], out int x2, out int y2);
-            turnOrderList.Add(grid.SetValue(x2, y2, Instantiate(goAiCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform)));
+            GameObject gameObject = grid.SetValue(x2, y2, Instantiate(goAiCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform));
+
+            turnOrderList.Add(gameObject);
 
             listSpawnpoints.RemoveAt(0);
         }
-
         StartCoroutine(StartGame());
     }
     IEnumerator StartGame()
@@ -315,13 +315,16 @@ public class GameController : MonoBehaviour
         EndTurn();
     }
 
-    public void CreateAmry(List<ArmyData> data, (int x, int y) positon, Castle castle)
+    public ArmyController CreateAmry(List<ArmyData> data, (int x, int y) positon, Castle castle)
     {
         Vector3 move = grid.GetWorldPosition(positon.x, positon.y);
         if(grid.SetValue(move, Instantiate(goArmyPrefab, move, new Quaternion(0, 0, 0, 0), goMapHolder.transform)).TryGetComponent(out ArmyController A))
         {
             A.InitArmy(data, castle);
+            return A;
         }
+        Debug.LogError("Oops< somethings goes wrong in CreateAmry()");
+        return null;
     }
 
     //сделать проверку на это во время конца действия атаки или движения
@@ -343,31 +346,35 @@ public class GameController : MonoBehaviour
     }
 
     private int ticker = 0;
+    bool gameJustStartted = true;
     public void EndTurn()
     {
-        Debug.Log("Player end turn " + ticker);
-        if(ticker >= turnOrderList.Count)
+        if(ticker >= turnOrderList.Count - 1 || gameJustStartted)
         {
+            gameJustStartted = false;
             currentTrun++;
             Debug.Log("CURRENT TURN: " + currentTrun);
             ticker = 0;
             StartTurn(ticker);
-            return;
+            //return;
         }
-        if (turnOrderList[ticker] != null)
+        else if (turnOrderList[ticker] != null)
         {
-            StartTurn(ticker);
             ticker++;
+            StartTurn(ticker);
         }
         else if(turnOrderList[ticker] == null)
         {
             turnOrderList.RemoveAt(ticker);
+            ticker++;
             StartTurn(ticker);
         }
     }
 
     public void StartTurn(int x)
     {
+        Debug.Log("Player start turn " + x);
+        uiController.TurnStart(x);
         turnOrderList[x].GetComponent<Castle>().OnTurnStart();
     }
 }

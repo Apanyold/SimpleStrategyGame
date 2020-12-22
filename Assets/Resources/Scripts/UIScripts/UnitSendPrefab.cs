@@ -25,15 +25,6 @@ public class UnitSendPrefab : MonoBehaviour
     private void UpdateArmyInfo(string value)
     {
         armyToSendCount = int.Parse(value);
-        //int.TryParse(value, out int x);
-
-        //if (x <= 0)
-        //{
-        //    Debug.LogError("IncorrectValue");
-        //    army.count = 0;
-        //}
-        //else
-        //    army.count = x;
 
     }
 }

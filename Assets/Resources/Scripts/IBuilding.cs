@@ -42,7 +42,7 @@ public class TownHall : IBuilding
             return;
         for (int i = 1; i < buildingInfo.currentLevel; i++)
             tax += 0.02f;
-        float taxIncome = castle.PeoplesCurrent * tax;
+        float taxIncome = castle.peoplesCurrent * tax;
         castle.coinsCurrent += (int)taxIncome;
     }
 }
@@ -57,8 +57,8 @@ public class House : IBuilding
     {
         this.buildingInfo = buildingInfo;
         this.castle = castle;
-
-        castle.poeplesLimit += bonusPerLvl;
+        
+        castle.poeplesLimit = buildingInfo.currentLevel * bonusPerLvl + GameController.Insnatce.startPeoplesLimit;
     }
 
     public void OnBuy()
@@ -79,8 +79,10 @@ public class House : IBuilding
 
     public void OnTurnStart()
     {
-        if(castle.PeoplesCurrent <= castle.poeplesLimit)
-            castle.PeoplesCurrent += buildingInfo.currentLevel * 10;
+        if(castle.peoplesCurrent <= castle.poeplesLimit)
+            castle.peoplesCurrent += buildingInfo.currentLevel * 10;
+        if (castle.peoplesCurrent > castle.poeplesLimit)
+            castle.peoplesCurrent = castle.poeplesLimit;
     }
 }
 

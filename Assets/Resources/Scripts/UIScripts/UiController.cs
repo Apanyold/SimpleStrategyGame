@@ -15,6 +15,7 @@ public class UiController : MonoBehaviour
     private Button 
         sendArmy,
         endTurn;
+
     [SerializeField]
     private Text
         coinsCount,
@@ -23,6 +24,8 @@ public class UiController : MonoBehaviour
     private static UiController instance;
 
     public static UiController Instance { get => instance; set => instance = value; }
+
+    public GameObject blackSubstrate;
 
     private void LateUpdate()
     {
@@ -33,21 +36,28 @@ public class UiController : MonoBehaviour
     {
         instance = this;
 
-        Debug.Log(listHud.Count);
-
         StartCoroutine(InitHud());
 
         sendArmy.onClick.AddListener(() => { Open("hud_send_units"); ; });
-        endTurn.onClick.AddListener(() => { TurnEnd(); });
+        endTurn.onClick.AddListener(() => { GameController.Insnatce.EndTurn(); });
     }
 
+    public void TurnStart(int x)
+    {
+        if(x == 0)
+        {
+            blackSubstrate.SetActive(false);
+        }
+        else
+            blackSubstrate.SetActive(true);
+    }
 
     public void UpdateHud()
     {
         if (GameController.Insnatce.player != null && GameController.Insnatce.player.playerCastle != null)
         {
             coinsCount.text = GameController.Insnatce.player.playerCastle.coinsCurrent.ToString();
-            peopleCount.text = GameController.Insnatce.player.playerCastle.PeoplesCurrent.ToString();
+            peopleCount.text = GameController.Insnatce.player.playerCastle.peoplesCurrent.ToString() + "/" + GameController.Insnatce.player.playerCastle.poeplesLimit.ToString();
         }
     }
 
@@ -67,10 +77,5 @@ public class UiController : MonoBehaviour
     public void ShowNotification(string notificationText)
     {
         Debug.Log("ShowNotification with text: " + notificationText);
-    }
-
-    public void TurnEnd()
-    {
-
     }
 }

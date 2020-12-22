@@ -63,7 +63,7 @@ public class HudSendUnits : Hud
         }
         else
         {
-            ArmyData army = new ArmyData(data, GameController.Insnatce.player.Id, count);
+            ArmyData army = new ArmyData(data, count, GameController.Insnatce.player.Id);
             sendArmy.Add(army);
         }
     }
@@ -89,7 +89,6 @@ public class HudSendUnits : Hud
             return;
         }
         sendArmy.ForEach(x => Debug.Log(x.unitInfo + " " +x.count));
-        Debug.Log("Trying to send army");
         OnClose();
         GameController.Insnatce.player.playerCastle.MoveArmyFromCastle(sendArmy);
     }

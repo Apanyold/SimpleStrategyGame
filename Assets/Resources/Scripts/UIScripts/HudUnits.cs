@@ -21,11 +21,7 @@ public class HudUnits : Hud
         buttonSwitch.onClick.AddListener(() => { UiController.Instance.Open("hud_buildings"); OnClose(); });
 
         castle = GameController.Insnatce.player.playerCastle;
-        avaliebleToTrainUnit = castle.avaliebleToTrainUnits;
         units = GameController.Insnatce.unitsInfo;
-
-
-
     }
 
     public override void OnOpen()
@@ -33,6 +29,7 @@ public class HudUnits : Hud
         gameObject.SetActive(true);
 
         UnitBuyPrefab temp;
+        avaliebleToTrainUnit = castle.avaliebleToTrainUnits;
         foreach (ArmyData uniy in avaliebleToTrainUnit)
         {
             temp = Instantiate(buyPrefab, holder.transform).GetComponent<UnitBuyPrefab>();

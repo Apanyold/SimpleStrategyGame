@@ -12,9 +12,8 @@ GameObject:
   - component: {fileID: 2805965034223289996}
   - component: {fileID: 5568106019762544879}
   - component: {fileID: -922862503550497382}
-  - component: {fileID: -7709979363689095379}
   m_Layer: 0
-  m_Name: EnemyCastle
+  m_Name: EmptyCastle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,7 +73,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_Sprite: {fileID: 21300000, guid: 7332f6bbe75055b4da9bf270eac8796f, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.9832283, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -127,19 +126,3 @@ MonoBehaviour:
   homeCastle: {fileID: 0}
   controller: {fileID: 0}
   carriedCoins: 0
---- !u!114 &-7709979363689095379
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4511595174759319742}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d5c9519f35079240bd7874e65f6c022, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  aiCastle: {fileID: 0}
-  Id: 0
-  isPlayerFriendly: 0
-  aggressionBehavior: 0

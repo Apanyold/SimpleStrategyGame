@@ -41,15 +41,13 @@ public class FightController
         atckArmyList.Sort();
         defArmyList.Sort();
 
-        //test
-        //atckArmyList.ForEach(x => Debug.Log("Unit name: " + x.unitInfo.name + " Initiative: " + x.unitInfo.initiative + " Owner: " + x.ownerId));
-        //defArmyList.ForEach(x => Debug.Log("Unit name: " + x.unitInfo.name + " Initiative: " + x.unitInfo.initiative + " Owner: " + x.ownerId));
-        //Debug.Log("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
-        //Debug.Log("Unity strenght: " + defArmyList[0].strenght + " Name: " +defArmyList[0].unitInfo.name);
-
         if (atckArmyList.Count == 0 || defArmyList.Count == 0)
         {
             Debug.LogError("Army is empty");
+            if(defArmyList.Count == 0)
+            {
+                defArmy.Die(atckArmy);
+            }
             return;
         }
 
@@ -93,7 +91,7 @@ public class FightController
                 tempAtckList.RemoveAt(0);
             }
         }
-        attackOrderList.ForEach(x => Debug.Log("Unit name: " + x.unitInfo.name + " || Initiative: " + x.unitInfo.initiative + " || Owner: " + x.ownerId + " || Count: " + x.count));
+        //attackOrderList.ForEach(x => Debug.Log("Unit name: " + x.unitInfo.name + " || Initiative: " + x.unitInfo.initiative + " || Owner: " + x.ownerId + " || Count: " + x.count));
 
 
         StartFight();
@@ -145,20 +143,20 @@ public class FightController
         if (attackOrderList.FindAll(x => x.ownerId == atckArmyController.ownerId).Count == 0)
         {
             Debug.Log("DEFENDERS WIN");
-            //atckArmyController.Die();
+            atckArmyController.Die(defArmyCOntroller);
             defArmyCOntroller.UpdateArmyInfo(attackOrderList);
         }
         else if (attackOrderList.FindAll(x => x.ownerId == defArmyCOntroller.ownerId).Count == 0)
         {
             Debug.Log("ATTACKERS WIN");
-            //defArmyCOntroller.Die();
+            defArmyCOntroller.Die(atckArmyController);
             atckArmyController.UpdateArmyInfo(attackOrderList);
         }
         else if(attackOrderList.Count == 0)
         {
             Debug.Log("DRAW");
-            //atckArmyController.Die();
-            //defArmyCOntroller.Die();
+            atckArmyController.Die(defArmyCOntroller);
+            defArmyCOntroller.Die(atckArmyController);
         }
         else
             StartFight();

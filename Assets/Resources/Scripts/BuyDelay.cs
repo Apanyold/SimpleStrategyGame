@@ -2,33 +2,42 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuyDelay
+public class BuyDelay : MonoBehaviour
 {
     Castle castle;
     ArmyData unit;
-    int count;
+    int time;
 
     public BuyDelay(Castle castle, ArmyData unit, int count)
     {
+        Debug.Log("BuyDelay");
         this.castle = castle;
         this.unit = unit;
-        this.count = count;
+        this.unit.count = count;
+        time = unit.UnitTrainTime;
     }
 
     public bool OnTurn()
     {
-        Debug.Log("Hello");
-        if (unit.UnitTrainTime > 0)
+        time--;
+        if (time > 0)
         {
-            Debug.Log("unit.UnitTrainTime " + unit.UnitTrainTime);
-            unit.UnitTrainTime--;
+            Debug.Log("Trying to train unit time:  " + time);
             return false;
         }
         else
         {
-            castle.castleArmy.UpdateArmyInfo(unit.unitInfo, count);
-            Debug.Log("unit.unitInfo.name " + unit.unitInfo.name + " " + count);
+            castle.castleArmy.UpdateArmyInfo(unit);
+            Debug.Log("unit.unitInfo.name " + unit.unitInfo.name + " " + unit.count);
             return true;
+        }
+    }
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(2))
+        {
+            Debug.Log("Time " + time);
         }
     }
 }
