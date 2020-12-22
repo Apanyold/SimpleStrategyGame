@@ -19,7 +19,10 @@ public class GameController : MonoBehaviour
     public List<UnitInfo> unitsInfo;
 
     [SerializeField]
-    public int startCoins, startPeoples;
+    public int 
+        startCoins, 
+        startPeoples,
+        startPeoplesLimit;
 
     [SerializeField]
     public UiController uiController;
@@ -71,6 +74,8 @@ public class GameController : MonoBehaviour
     public FightController fightController;
     [HideInInspector]
     public PlayerController player;
+
+    public List<GameObject> turnOrderList;
     #endregion
 
     private void Awake()
@@ -80,7 +85,7 @@ public class GameController : MonoBehaviour
             insnatce = this;
             //DontDestroyOnLoad(this);
         }
-
+        turnOrderList = new List<GameObject>();
         m_Raycaster = FindObjectOfType<GraphicRaycaster>();
         m_EventSystem = FindObjectOfType<EventSystem>();
         fightController = new FightController();
@@ -114,6 +119,10 @@ public class GameController : MonoBehaviour
                 ClickDetector();
             }
         }
+        if (Input.GetMouseButtonDown(1))
+        {
+            //Debug.Log(turnOrderList.Count);
+        }
         CameraMove();
     }
 
@@ -131,7 +140,7 @@ public class GameController : MonoBehaviour
         }
         if (point != null && point.TryGetComponent(out ArmyController A))
         {
-            if (point != null && A.ownerId == goPlayer.GetComponent<PlayerController>().Id && !isArmySelected && !A.isMovedThisTurn && !A.isOnCastle)
+            if (A.ownerId == 1 && !isArmySelected && !A.isMovedThisTurn && !A.isOnCastle)
             {
                 Debug.Log("Army Selected");
                 selectedArmy = point;
@@ -189,6 +198,15 @@ public class GameController : MonoBehaviour
         return moveList;
     }
 
+    public bool PositionAvailabilityCheck((int x, int y) position)
+    {
+        if (grid.GetValue(position.x, position.y) == null)
+        {
+            return true;
+        }
+        else
+            return false;
+    }
     private void ShowArmyMoveZone(List<(int x, int y)> moveList)
     {
         for (int i = 0; i < moveList.Count; i++)
@@ -272,41 +290,29 @@ public class GameController : MonoBehaviour
         mainCamera.transform.position = new Vector3(listSpawnpoints[0].x, listSpawnpoints[0].y, mainCamera.transform.position.z);
         // Spawn player
         grid.GetXY(listSpawnpoints[0], out int x, out int y);
-        player = grid.SetValue(x, y, 
-            Instantiate(goPlayerCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform)).GetComponent<PlayerController>();
+        turnOrderList.Add(grid.SetValue(x, y, 
+            Instantiate(goPlayerCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform)));
 
-
+        player = turnOrderList[0].GetComponent<PlayerController>();
+        
         listSpawnpoints.RemoveAt(0);
         // Spawn bots
         for (int i = 0; i< botsCount; i++)
         {
             grid.GetXY(listSpawnpoints[0], out int x2, out int y2);
-            grid.SetValue(x2, y2, Instantiate(goAiCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform));
+            turnOrderList.Add(grid.SetValue(x2, y2, Instantiate(goAiCastlePrefab, listSpawnpoints[0], new Quaternion(0, 0, 0, 0), goMapHolder.transform)));
 
             listSpawnpoints.RemoveAt(0);
         }
+    }
 
-
-        // TESTING
-        GameObject gameObject = grid.SetValue(6,6,Instantiate(goArmyPrefab, new Vector3(6, 6, 0), new Quaternion(0, 0, 0, 0), goMapHolder.transform));
-        if(gameObject.TryGetComponent(out ArmyController A))
+    public void CreateAmry(List<ArmyData> data, (int x, int y) positon, Castle castle)
+    {
+        Vector3 move = grid.GetWorldPosition(positon.x, positon.y);
+        if(grid.SetValue(move, Instantiate(goArmyPrefab, move, new Quaternion(0, 0, 0, 0), goMapHolder.transform)).TryGetComponent(out ArmyController A))
         {
-            A.ownerId = 1;
-            gameObject.GetComponent<SpriteRenderer>().color = Color.green;
-            grid.SetValue(6, 6, gameObject);
-
-            A.UpdateArmyInfo(unitsInfo[0], 1);
-            A.UpdateArmyInfo(unitsInfo[1], 2);
-            A.UpdateArmyInfo(unitsInfo[2], 3);
-            A.UpdateArmyInfo(unitsInfo[3], 1);
+            A.InitArmy(data, castle);
         }
-
-
-        goPlayer = FindObjectOfType<PlayerController>().gameObject;
-        
-        GameObject gameObjectEnemy = grid.SetValue(6, 7, Instantiate(goArmyPrefab, new Vector3(6, 7, 0), new Quaternion(0, 0, 0, 0), goMapHolder.transform));
-        gameObjectEnemy.GetComponent<ArmyController>().ownerId = 2;
-
     }
 
     //сделать проверку на это во время конца действия атаки или движения
@@ -325,6 +331,31 @@ public class GameController : MonoBehaviour
             }
 
         }
+    }
+
+    private int ticker = 0;
+    public void EndTurn()
+    {
+        if (turnOrderList[ticker] != null && ticker < turnOrderList.Count)
+        {
+            StartTurn(ticker);
+            ticker++;
+        }
+        else if(turnOrderList[ticker] == null)
+        {
+            turnOrderList.RemoveAt(ticker);
+            StartTurn(ticker);
+        }
+        else
+        {
+            ticker = 0;
+            StartTurn(ticker);
+        }
+    }
+
+    public void StartTurn(int x)
+    {
+        turnOrderList[x].GetComponent<Castle>().OnTurnStart();
     }
 }
 

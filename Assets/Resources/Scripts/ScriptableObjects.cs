@@ -16,7 +16,7 @@ public class UnitInfo : ScriptableObject
 {
     public int coinsCost;
     public int peopleCost;
-    public string unityName;
+    public string unitName;
     public Sprite image;
 
     public int attack;

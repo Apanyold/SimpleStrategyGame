@@ -16,15 +16,52 @@ public class Buildings
 
     public void ActionWithBuilding(BuildingsData buildingInfo , ACTION action = ACTION.BUY)
     {
+        
         switch (buildingInfo.building.buidingName)
         {
             case "TownHall":
                 {
-                    TownHall townHall = new TownHall(buildingInfo, castle);
+                    TownHall building = new TownHall(buildingInfo, castle);
                     if(action == ACTION.BUY)
-                        townHall.OnBuy();
+                        building.OnBuy();
                     else if (action == ACTION.TURN)
-                        townHall.OnTurnStart();
+                        building.OnTurnStart();
+                    break;
+                }
+            case "House":
+                {
+                    House building = new House(buildingInfo, castle);
+                    if (action == ACTION.BUY)
+                        building.OnBuy();
+                    else if (action == ACTION.TURN)
+                        building.OnTurnStart();
+                    break;
+                }
+            case "Wall":
+                {
+                    Wall building = new Wall(buildingInfo, castle);
+                    if (action == ACTION.BUY)
+                        building.OnBuy();
+                    else if (action == ACTION.TURN)
+                        building.OnTurnStart();
+                    break;
+                }
+            case "Temple":
+                {
+                    Temple building = new Temple(buildingInfo, castle);
+                    if (action == ACTION.BUY)
+                        building.OnBuy();
+                    else if (action == ACTION.TURN)
+                        building.OnTurnStart();
+                    break;
+                }
+            case "Barracks":
+                {
+                    Barracks building = new Barracks(buildingInfo, castle);
+                    if (action == ACTION.BUY)
+                        building.OnBuy();
+                    else if (action == ACTION.TURN)
+                        building.OnTurnStart();
                     break;
                 }
         }

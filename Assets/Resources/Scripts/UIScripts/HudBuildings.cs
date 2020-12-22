@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class HudBuildings : UiController
+public class HudBuildings : Hud
 {
     [SerializeField]
     private GameObject
@@ -12,7 +13,9 @@ public class HudBuildings : UiController
     private List<BuildingPrefabContorller> buttonsList;
 
     Buildings buildings;
-    
+
+    public Button buttonSwitch;
+
     public void CreateHudElements()
     {
         BuildingPrefabContorller temp;
@@ -24,7 +27,7 @@ public class HudBuildings : UiController
         }
     }
 
-    public void UpdateHud()
+    public void UpdateHudBuildings()
     {
         buttonsList.ForEach(x => x.UpdatePrefabInfo());
     }
@@ -35,7 +38,7 @@ public class HudBuildings : UiController
 
         buildings.ActionWithBuilding(building);
 
-        UpdateHud();
+        UpdateHudBuildings();
     }
 
     public override void OnOpen()
@@ -44,19 +47,20 @@ public class HudBuildings : UiController
 
         buttonsList = new List<BuildingPrefabContorller>();
 
-        buildings = new Buildings(GameController.Insnatce.player.playerCastle);
-        Debug.Log(GameController.Insnatce.player.playerCastle.name);
+        buildings = GameController.Insnatce.player.playerCastle.buildings;
 
         CreateHudElements();
     }
 
     public override void OnClose()
     {
-        gameObject.SetActive(true);
+        gameObject.SetActive(false);
     }
 
     public override void OnStart()
     {
         gameObject.SetActive(false);
+
+        buttonSwitch.onClick.AddListener(() => { UiController.Instance.Open("hud_units"); OnClose(); });
     }
 }

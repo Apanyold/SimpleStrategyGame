@@ -10,10 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: Barraks
+  m_Name: Barracks
   m_EditorClassIdentifier: Assembly-CSharp::BuildingInfo
-  cost: 0
-  currentLevel: 0
-  maxLevel: 0
-  buidingName: 
+  cost: 300
+  maxLevel: 10
+  buidingName: Barracks
   image: {fileID: 0}

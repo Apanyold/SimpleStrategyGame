@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: Temple
   m_EditorClassIdentifier: Assembly-CSharp::BuildingInfo
-  cost: 0
-  currentLevel: 0
-  maxLevel: 0
-  buidingName: 
+  cost: 750
+  maxLevel: 9
+  buidingName: Temple
   image: {fileID: 0}

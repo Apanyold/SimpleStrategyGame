@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HudSendUnits : UiController
+public class HudSendUnits : Hud
 {
     public GameObject sendUnitPrefab;
 
@@ -23,7 +23,6 @@ public class HudSendUnits : UiController
     public override void OnStart()
     {
         gameObject.SetActive(false);
-        sendArmy = new List<ArmyData>();
         prefabsList = new List<UnitSendPrefab>();
         buttonSend.onClick.AddListener(() => SendAmry());
         buttonCancel.onClick.AddListener(() => OnClose());
@@ -31,11 +30,15 @@ public class HudSendUnits : UiController
     
     public override void OnOpen()
     {
+        sendArmy = new List<ArmyData>();
         gameObject.SetActive(true);
         castleArmy = GameController.Insnatce.player.playerCastle.GetComponent<ArmyController>().armyInfo;
 
         if (prefabsList.Count > 0)
-            prefabsList.RemoveAll(x => x);
+        {
+            prefabsList.ForEach(x => Destroy(x.gameObject));
+            prefabsList = new List<UnitSendPrefab>();
+        }
 
         foreach (ArmyData army in castleArmy)
         {
@@ -50,25 +53,35 @@ public class HudSendUnits : UiController
         gameObject.SetActive(false);
     }
 
-    public void UpdateSendArmyList(ArmyData data)
+    public void UpdateSendArmyList(UnitInfo data, int count)
     {
-        if (sendArmy.Count != 0 && sendArmy.Exists(x => x.unitInfo.name == data.unitInfo.name))
+        if (count == 0)
+            return;
+        if (sendArmy.Count != 0 && sendArmy.Exists(x => x.unitInfo.name == data.name))
         {
-            sendArmy.Find(x => x.unitInfo.name == data.unitInfo.name).count = data.count;
+            sendArmy.Find(x => x.unitInfo.name == data.name).count = count;
         }
         else
-            sendArmy.Add(data);
+        {
+            ArmyData army = new ArmyData(data, GameController.Insnatce.player.Id, count);
+            sendArmy.Add(army);
+        }
     }
 
     public void SendAmry()
     {
-        prefabsList.ForEach(x => 
+        foreach(UnitSendPrefab x in prefabsList)
         {
-            if (x.army.count > 0)
+            if (x.armyToSendCount > 0)
             {
-                UpdateSendArmyList(x.army);
+                if(x.armyToSendCount > int.Parse(x.unitCurrentCount.text))
+                {
+                    Debug.LogError("Army to send count incorrect");
+                    return;
+                }
+                UpdateSendArmyList(x.unit, x.armyToSendCount);
             }
-        });
+        }
 
         if (sendArmy.Count == 0)
         {
@@ -77,5 +90,7 @@ public class HudSendUnits : UiController
         }
         sendArmy.ForEach(x => Debug.Log(x.unitInfo + " " +x.count));
         Debug.Log("Trying to send army");
+        OnClose();
+        GameController.Insnatce.player.playerCastle.MoveArmyFromCastle(sendArmy);
     }
 }

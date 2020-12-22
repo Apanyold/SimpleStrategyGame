@@ -3,21 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UiController : MonoBehaviour, IUi
+public class UiController : MonoBehaviour
 {
-    
+
     [SerializeField]
-    public List<UiController> listUiElements;
+    public List<Hud> listHud;
 
     public string Name;
 
-    public Button 
+    [SerializeField]
+    private Button 
         sendArmy,
         endTurn;
+    [SerializeField]
+    private Text
+        coinsCount,
+        peopleCount;
+
+    private static UiController instance;
+
+    public static UiController Instance { get => instance; set => instance = value; }
+
+    private void LateUpdate()
+    {
+        UpdateHud();
+    }
 
     public void InitInterface()
     {
-        Debug.Log(listUiElements.Count);
+        instance = this;
+
+        Debug.Log(listHud.Count);
 
         StartCoroutine(InitHud());
 
@@ -25,18 +41,28 @@ public class UiController : MonoBehaviour, IUi
         endTurn.onClick.AddListener(() => { TurnEnd(); });
     }
 
+
+    public void UpdateHud()
+    {
+        if (GameController.Insnatce.player != null && GameController.Insnatce.player.playerCastle != null)
+        {
+            coinsCount.text = GameController.Insnatce.player.playerCastle.coinsCurrent.ToString();
+            peopleCount.text = GameController.Insnatce.player.playerCastle.PeoplesCurrent.ToString();
+        }
+    }
+
     IEnumerator InitHud()
     {
+        listHud.ForEach(x => x.OnStart());
+
         yield return new WaitForEndOfFrame();
-
-
-        listUiElements.ForEach(x => x.OnStart());
+        UpdateHud();
         Open("hud_buildings");
     }
 
     public void Open(string name)
     {
-        listUiElements.Find(x => x.Name == name).OnOpen();
+        listHud.Find(x => x.Name == name).OnOpen();
     }
 
     public void ShowNotification(string notificationText)
@@ -47,19 +73,5 @@ public class UiController : MonoBehaviour, IUi
     public void TurnEnd()
     {
 
-    }
-
-    public virtual void OnStart()
-    {
-
-    }
-
-    public virtual void OnOpen()
-    {
-
-    }
-
-    public virtual void OnClose()
-    {
     }
 }

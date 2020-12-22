@@ -10,30 +10,30 @@ public class UnitSendPrefab : MonoBehaviour
         unitCurrentCount;
     public InputField unitCount;
 
-    public ArmyData army;
+    public UnitInfo unit;
+
+    public int armyToSendCount = 0;
 
     public void Initialize(ArmyData army)
     {
-        this.army = army;
-        unitName.text = army.unitInfo.name + " :";
+        unit = army.unitInfo;
+        unitName.text = unit.name + " :";
         unitCurrentCount.text = army.count.ToString();
-
         unitCount.onValueChanged.AddListener((value) =>{UpdateArmyInfo(value);});
     }
 
     private void UpdateArmyInfo(string value)
     {
-        int.TryParse(value, out int x);
+        armyToSendCount = int.Parse(value);
+        //int.TryParse(value, out int x);
 
-        if (x > army.count)
-            unitCount.text = army.count.ToString();
-        if (x <= 0)
-        {
-            Debug.LogError("IncorrectValue");
-            army.count = 0;
-        }
-        else
-            army.count = x;
+        //if (x <= 0)
+        //{
+        //    Debug.LogError("IncorrectValue");
+        //    army.count = 0;
+        //}
+        //else
+        //    army.count = x;
 
     }
 }

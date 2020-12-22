@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: TownHall
   m_EditorClassIdentifier: Assembly-CSharp::BuildingInfo
   cost: 200
-  currentLevel: 1
   maxLevel: 10
   buidingName: TownHall
   image: {fileID: 0}

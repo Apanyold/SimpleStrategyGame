@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnitInfo
   coinsCost: 20
   peopleCost: 1
-  unityName: Footman
+  unitName: Footman
   image: {fileID: 0}
   attack: 8
   initiative: 1
